@@ -1,0 +1,24 @@
+{
+  "name": "Vánoční trhy",
+  "short_name": "Vánoční trhy",
+  "description": "Mapa vánočních trhů v Česku a sousedních zemích. Najděte trhy kolem sebe nebo prstem obkreslete oblast.",
+  "lang": "cs",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4eee4",
+  "theme_color": "#9b1c2e",
+  "categories": ["travel", "lifestyle", "navigation"],
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Trhy kolem mě", "short_name": "Kolem mě", "url": "./?akce=poloha", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]},
+    {"name": "Oblíbené trhy", "short_name": "Oblíbené", "url": "./?akce=oblibene", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]},
+    {"name": "Otevřeno teď", "short_name": "Otevřeno teď", "url": "./?akce=ted", "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]}
+  ]
+}

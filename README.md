@@ -16,9 +16,12 @@ Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slov
 - Detail trhu s odpočtem („Začíná za 7 dní“, „Otevřeno · do 22:00“) a sdílením odkazu přímo na trh
 - Úvodní průvodce, sváteční vzhled a padající sníh (lze vypnout)
 - Funguje na mobilu i počítači, světlý i tmavý (noční) režim
+- Instalace na plochu telefonu (PWA), funguje i offline: uložená data, knihovny a naposledy prohlížená mapa
+- Zkratky z ikony aplikace: Trhy kolem mě (`?akce=poloha`), Oblíbené (`?akce=oblibene`), Otevřeno teď (`?akce=ted`)
+- Sdílení konkrétního trhu (`#trh=…`) i celé aplikace s náhledovým obrázkem
 
 ## Technika
-Jeden soubor `index.html`: čisté HTML, CSS a JavaScript, mapa [Leaflet](https://leafletjs.com/) s podklady © OpenStreetMap. Bez build procesu a backendu.
+`index.html` (aplikace), `markets.js` (data), `sw.js` (offline režim), `manifest.webmanifest` a `icons/`. Čisté HTML, CSS a JavaScript, mapa [Leaflet](https://leafletjs.com/) s podklady © OpenStreetMap. Bez build procesu a backendu.
 
 Data trhů jsou v souboru `markets.js`. Trhy s ověřeným termínem a popisem jsou v poli `MARKETS`:
 ```js
