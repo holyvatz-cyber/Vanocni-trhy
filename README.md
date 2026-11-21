@@ -1,6 +1,6 @@
 # 🎄 Vánoční trhy
 
-Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slovensko, Polsko).
+Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slovensko, Polsko). Obsahuje přes 320 trhů: v Česku krajská i okresní města a v sousedních zemích hlavně příhraniční regiony a velká města.
 
 **Aplikace:** https://holyvatz-cyber.github.io/Vanocni-trhy/
 
@@ -15,10 +15,12 @@ Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slov
 ## Technika
 Jeden soubor `index.html`: čisté HTML, CSS a JavaScript, mapa [Leaflet](https://leafletjs.com/) s podklady © OpenStreetMap. Bez build procesu a backendu.
 
-Data trhů jsou v poli `MARKETS` na začátku skriptu. Nový trh přidáte jedním řádkem:
+Data trhů jsou v souboru `markets.js`. Trhy s ověřeným termínem a popisem jsou v poli `MARKETS`:
 ```js
 {n:"Název", c:"Město", cc:"CZ", lat:50.0, lng:14.0, f:"2026-11-28", t:"2026-12-23", h:"10:00–20:00", d:"Popis"},
 ```
+
+Menší trhy jsou ve zkráceném seznamu na konci souboru: `["Město", "CZ", lat, lng, "Místo"]`. Termín se u nich doplní jako odhad podle země a aplikace je označí štítkem „odhad“.
 
 ## Nasazení (GitHub Pages)
 **Settings → Pages → Deploy from a branch → `main` / `(root)` → Save.** Určení polohy funguje jen přes HTTPS, tedy na adrese GitHub Pages, ne při otevření souboru z disku.
