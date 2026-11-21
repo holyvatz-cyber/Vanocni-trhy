@@ -1,5 +1,5 @@
 /* Vánoční trhy – service worker: offline app shell, cached libraries and recently viewed map tiles */
-const VERSION = "v9";
+const VERSION = "v10";
 const SHELL = `vt-shell-${VERSION}`, LIBS = "vt-libs-1", TILES = "vt-tiles-1";
 const SHELL_FILES = ["./", "index.html", "markets.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
@@ -26,7 +26,8 @@ self.addEventListener("fetch", e => {
 
   // App files: network first (fresh data), cache as fallback when offline
   if (url.origin === location.origin){
-    e.respondWith(fetch(req).then(res => {
+    // no-cache = always ask the server (cheap 304 when unchanged), so new versions arrive immediately
+    e.respondWith(fetch(req, {cache:"no-cache"}).then(res => {
       if (res.ok){ const copy = res.clone(); caches.open(SHELL).then(c => c.put(req, copy)); }
       return res;
     }).catch(() => caches.match(req, {ignoreSearch:true}).then(r => r || caches.match("index.html"))));

@@ -426,9 +426,9 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<script src="markets.js?v=9"></script>
+<script src="markets.js?v=10"></script>
 <script>
-const APP_VERSION = "v9";
+const APP_VERSION = "v10";
 const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES, TAGS = window.TAGS || {};
 
 /* ================= Helpers ================= */
@@ -1250,7 +1250,15 @@ async function shareApp(){
 addEventListener("offline", () => toast("Jste offline · zobrazují se uložená data a mapa"));
 addEventListener("online", () => toast("Jste zase online"));
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){
-  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  // a new version took over: reload once so the user sees it right away
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || reloading) return;
+    reloading = true; location.reload();
+  });
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js", {updateViaCache:"none"}).then(r => r.update()).catch(() => {}));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {}); });
 }
 
 /* ================= Init ================= */
