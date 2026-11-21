@@ -2,7 +2,7 @@
 
 Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slovensko, Polsko).
 
-**Aplikace:** https://holyvatz-cyber.github.io/vanocni-trhy/
+**Aplikace:** https://holyvatz-cyber.github.io/Vanocni-trhy/
 
 ## Funkce
 - Výchozí bod je vaše poloha, trhy se řadí podle vzdálenosti
