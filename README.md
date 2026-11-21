@@ -13,6 +13,9 @@ Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slov
 - ♥ Oblíbené trhy (uloží se v zařízení), na mapě označené srdíčkem
 - Filtr podle termínu: Otevřeno teď, Dnes, Tento víkend nebo libovolný den
 - Filtr podle zemí
+- 📸 Fotka u každého trhu z Wikipedie (nejbližší článek s fotkou podle polohy trhu)
+- 🌤️ Předpověď počasí na 16 dní v místě trhu (Open-Meteo), dny, kdy má trh zavřeno, jsou zašedlé
+- 🚗 Plánovač výletu: až 10 zastávek, nejkratší pořadí, upozornění na zavřené trhy ve vybraný den, navigace celé trasy v Google Maps
 - Detail trhu s odpočtem („Začíná za 7 dní“, „Otevřeno · do 22:00“) a sdílením odkazu přímo na trh
 - Úvodní průvodce, sváteční vzhled a padající sníh (lze vypnout)
 - Funguje na mobilu i počítači, světlý i tmavý (noční) režim
@@ -34,6 +37,6 @@ Menší trhy jsou ve zkráceném seznamu na konci souboru: `["Město", "CZ", lat
 **Settings → Pages → Deploy from a branch → `main` / `(root)` → Save.** Určení polohy funguje jen přes HTTPS, tedy na adrese GitHub Pages, ne při otevření souboru z disku.
 
 ## Data
-- **ověřeno 2026**: termín pochází ze zdrojů pro sezónu 2026/27 (weby měst, Visit Czechia, přehledy termínů). Zatím jde o 27 hlavních českých trhů. Pole `v:1` je v `markets.js`.
+- **ověřeno 2026**: termín pochází ze zdrojů pro sezónu 2026/27 (weby měst, Visit Czechia, přehledy termínů). Zatím jde o 41 trhů: 27 hlavních českých a 14 velkých trhů v Německu, Rakousku a Polsku. Pole `v:1` je v `markets.js`.
 - **odhad**: obvyklý termín podle země. Ověřte ho u pořadatele.
 - Ověřená data jsou v bloku *Verified 2026/27 data* na konci `markets.js`: termín, otevírací doba (`hv:1`), web pořadatele (`web`), vlastnosti (`tags`) a konkrétní dny (`days`).

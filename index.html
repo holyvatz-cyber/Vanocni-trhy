@@ -214,6 +214,56 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 .install-x{flex:none;width:30px;height:30px;display:grid;place-items:center;color:var(--muted);border-radius:9px}
 .install-x svg.i{width:16px;height:16px}
 .applink{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;background:none;padding:0;font-size:inherit}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s;z-index:0}
+.hero.has-photo{min-height:200px}
+.hero.has-photo .hero-img{opacity:1}
+.hero.has-photo::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(10,8,6,.82) 0%,rgba(10,8,6,.25) 55%,rgba(10,8,6,.35) 100%)}
+.hero.has-photo .hero-art{display:none}
+.hero > *:not(.hero-img){position:relative;z-index:2}
+.hero .back,.hero .favbtn{position:absolute;z-index:3}
+.credit{position:absolute !important;right:10px;bottom:6px;font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero.has-photo p{margin-bottom:10px}
+.wx{margin-top:22px}
+.wx h3{margin:0 2px 10px;font:700 17px/1.2 var(--font-display);display:flex;flex-direction:column;gap:2px}
+.wx h3 small{font:500 13px/1.3 var(--font-ui);color:var(--muted)}
+.wx-strip{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;scroll-behavior:smooth}
+.wx-strip::-webkit-scrollbar{display:none}
+.wx-day{flex:none;width:64px;padding:8px 4px;border-radius:14px;background:var(--panel-2);border:1.5px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px}
+.wx-day.tgt{border-color:var(--gold);background:var(--gold-soft)}
+.wx-day.shut{opacity:.45}
+.wx-dow{font-weight:700} .wx-date{color:var(--muted);font-size:11px}
+.wx-ico{font-size:24px;line-height:1.3}
+.wx-day b{font-size:15px} .wx-min{color:var(--muted)} .wx-rain{font-size:10px;color:#3d7fd6;font-weight:600}
+.wx-note{color:var(--muted);font-size:12px;margin:6px 2px 0}
+.wx-skel{width:100%;height:118px;border-radius:14px;background:linear-gradient(90deg,var(--panel-2),var(--line),var(--panel-2));background-size:200% 100%;animation:skel 1.2s infinite}
+@keyframes skel{to{background-position:-200% 0}}
+.trip{overflow-y:auto;flex:1;padding:0 16px 24px;overscroll-behavior:contain}
+.trip-head{display:flex;align-items:center;gap:12px;padding:2px 4px 8px}
+.trip-head h2{margin:0;font:700 22px/1.15 var(--font-display)}
+.trip-head p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.trip-head .grow{flex:1;min-width:0}
+.iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--panel-2);border:1.5px solid var(--line);flex:none}
+.trip-day{margin:4px 4px 10px;padding:8px 12px;border-radius:12px;background:var(--gold-soft);font-size:13px}
+.stops{list-style:none;margin:0;padding:0;position:relative}
+.stops li{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line)}
+.stops .num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:700;font-size:14px}
+.stops li.warn .num{background:var(--closed)}
+.stop-body{flex:1;min-width:0;text-align:left;display:flex;flex-direction:column}
+.stop-body b{font-weight:650}
+.stop-body span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stop-body em{font-style:normal;font-size:12px;font-weight:600;color:#c0602a}
+.stop-body em.ok-t{color:var(--muted);font-weight:500}
+.stop-acts{display:flex;gap:2px;flex:none}
+.stop-acts button{width:32px;height:32px;border-radius:9px;color:var(--muted);font-size:15px}
+.stop-acts button:disabled{opacity:.25}
+.stop-acts button:not(:disabled):active{background:var(--panel-2)}
+.trip-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.trip-actions .btn{font-size:14px;padding:11px 8px}
+.btn.danger{grid-column:1 / -1;color:var(--soon-ink);border-color:transparent;background:transparent;font-weight:600}
+.btn:disabled{opacity:.45}
+.chip.tripchip{background:var(--gold);border-color:var(--gold);color:#1e1a16}
+.trip-line{stroke:var(--accent);stroke-width:4;stroke-dasharray:2 9;stroke-linecap:round;fill:none}
+.tripnum{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:800;font-size:13px;display:grid;place-items:center;border:2px solid var(--gold);box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .empty{text-align:center;color:var(--muted);padding:28px 20px}
 .empty svg{width:64px;height:64px;margin-bottom:8px;opacity:.7}
 .note{color:var(--muted);font-size:12px;padding:14px 10px 0;text-align:center}
@@ -240,7 +290,9 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 .facts b{font-weight:650}
 .facts small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
 .desc{margin:14px 2px 0;line-height:1.55}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.actions .btn{padding:11px 8px;font-size:14px}
+.btn.on{background:var(--gold-soft);border-color:var(--gold)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:14px;font-weight:650;font-size:15px;
   text-decoration:none;border:1.5px solid var(--line);background:var(--panel);transition:transform .15s}
 .btn:active{transform:scale(.97)}
@@ -333,6 +385,7 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
     <ul id="list"></ul>
   </div>
   <div class="view" id="viewDetail" hidden></div>
+  <div class="view" id="viewTrip" hidden></div>
 </section>
 
 <div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-labelledby="introTitle">
@@ -373,9 +426,9 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<script src="markets.js?v=8"></script>
+<script src="markets.js?v=9"></script>
 <script>
-const APP_VERSION = "v8";
+const APP_VERSION = "v9";
 const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES, TAGS = window.TAGS || {};
 
 /* ================= Helpers ================= */
@@ -554,14 +607,25 @@ function focusLatLng(ll, zoom){
   map.flyTo(map.unproject(pt, z), z, {duration:.8});
 }
 
+/* ================= Views ================= */
+let backView = "list";
+function showView(name){
+  const wasTrip = state.tripView;
+  state.tripView = name === "trip";
+  if (wasTrip !== state.tripView) refreshMarkers();
+  for (const [n, id] of [["list","#viewList"],["detail","#viewDetail"],["trip","#viewTrip"]]) $(id).hidden = n !== name;
+  if (name !== "trip") drawTrip();
+}
+
 /* ================= Selection / detail ================= */
 function selectMarket(m, {zoom = true, fly = true} = {}){
   const prev = state.selected;
   state.selected = m;
   if (prev && prev !== m) prev.marker.setIcon(pinIcon(prev)).setZIndexOffset(0);
   m.marker.setIcon(pinIcon(m)).setZIndexOffset(1000);
+  if (!$("#viewTrip").hidden) backView = "trip"; else if (!$("#viewList").hidden) backView = "list";
   renderDetail(m);
-  $("#viewList").hidden = true; $("#viewDetail").hidden = false;
+  showView("detail");
   if (!isDesktop()) setSheet(sheet.dataset.state === "max" ? "max" : "mid");
   try { history.replaceState(null, "", "#trh=" + m.slug); } catch(_) {}
   if (fly){
@@ -573,11 +637,14 @@ function selectMarket(m, {zoom = true, fly = true} = {}){
     });
   }
 }
-function closeDetail(){
+function closeDetail(silent){
   const m = state.selected;
   state.selected = null;
   if (m) m.marker.setIcon(pinIcon(m)).setZIndexOffset(0);
-  $("#viewDetail").hidden = true; $("#viewList").hidden = false;
+  if (!silent){
+    if (backView === "trip"){ showView("trip"); renderTrip(); drawTrip(); } else showView("list");
+    backView = "list";
+  }
   try { history.replaceState(null, "", location.pathname + location.search); } catch(_) {}
 }
 function renderDetail(m){
@@ -604,13 +671,18 @@ function renderDetail(m){
     <p class="desc">${esc(m.d)}</p>
     <div class="actions">
       <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" target="_blank" rel="noopener">${ICON.nav} Navigovat</a>
+      <button class="btn${inTrip(m) ? " on" : ""}" id="btnTrip">${inTrip(m) ? "✓ Ve výletu" : "🚗 Do výletu"}</button>
       <button class="btn" id="btnShare">${ICON.share} Sdílet</button>
-      ${m.web ? `<a class="btn" href="${esc(m.web)}" target="_blank" rel="noopener">${ICON.web} Web pořadatele</a>`
-              : `<a class="btn" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">${ICON.ext} Více info</a>`}
+      ${m.web ? `<a class="btn" href="${esc(m.web)}" target="_blank" rel="noopener">${ICON.web} Web</a>`
+              : `<a class="btn" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">${ICON.ext} Info</a>`}
     </div>
+    <section class="wx" id="wx"><h3>Počasí</h3><div class="wx-strip"><div class="wx-skel"></div></div></section>
   </div>`;
-  $("#btnBack").onclick = closeDetail;
+  $("#btnBack").onclick = () => closeDetail();
   $("#btnFav").onclick = () => toggleFav(m);
+  $("#btnTrip").onclick = () => toggleTrip(m);
+  loadHeroPhoto(m);
+  loadWeather(m);
   $("#btnShare").onclick = () => shareMarket(m);
 }
 async function shareMarket(m){
@@ -699,7 +771,8 @@ function setArea(points){
   clearArea(true);
   state.areaPts = points;
   state.area = L.polygon(points, {className:"area-poly", interactive:false}).addTo(map);
-  if (state.selected) closeDetail();
+  if (state.selected) closeDetail(true);
+  showView("list");
   refreshAll();
   setSheet("mid");
   const pad = isDesktop() ? {paddingTopLeft:[440,90], paddingBottomRight:[40,40]} : {paddingTopLeft:[20,90], paddingBottomRight:[20, sheetPx("mid") + 20]};
@@ -791,6 +864,7 @@ function renderFilters(){
     f.appendChild(b);
     return b;
   };
+  if (trip.length){ const tb = mk(`🚗 Výlet <span class="cnt">${trip.length}</span>`, false, () => {}, "tripchip"); tb.onclick = openTrip; }
   mk(`♥ Oblíbené${favs.size ? ` <span class="cnt">${favs.size}</span>` : ""}`, state.favOnly, () => state.favOnly = !state.favOnly, "fav");
   const when = (key, label) => mk(label, state.when === key, () => state.when = state.when === key ? null : key);
   when("now", "Otevřeno teď");
@@ -818,7 +892,7 @@ function visibleMarkets(){
 
 /* ================= Rendering ================= */
 function refreshMarkers(){
-  const list = visibleMarkets().filter(m => m.inArea);
+  const list = state.tripView ? tripMarkets() : visibleMarkets().filter(m => m.inArea);
   markerLayer.clearLayers();
   list.forEach(m => m.marker.setIcon(pinIcon(m)));
   markerLayer.addLayers(list.map(m => m.marker));
@@ -931,6 +1005,221 @@ $("#btnSnow").onclick = () => snow.toggle();
   set(); addEventListener("resize", set);
   $("#introLead").textContent = `Přes ${Math.floor(MARKETS.length/10)*10} vánočních trhů v Česku a sousedních zemích na jedné mapě.`;
 })();
+
+/* ================= Photos (Wikipedia, nearest article with a photo) ================= */
+const WIKI_LANG = {CZ:"cs", SK:"sk", DE:"de", AT:"de", PL:"pl"};
+const BAD_IMG = /\.svg|map|mapa|karte|plan|erb|wappen|herb|coat|flag|vlajka|flagge|logo|znak|locator|lokaliz|lage|schema|grundriss/i;
+const photoMem = {};
+async function getPhoto(m){
+  if (m.slug in photoMem) return photoMem[m.slug];
+  const key = "vt_img1_" + m.slug, saved = store.get(key);
+  if (saved){ const v = saved === "-" ? null : JSON.parse(saved); photoMem[m.slug] = v; return v; }
+  const lang = WIKI_LANG[m.cc] || "en";
+  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=geosearch&ggscoord=${m.lat}%7C${m.lng}&ggsradius=1000&ggslimit=20&prop=pageimages%7Cinfo&piprop=thumbnail&pithumbsize=960&inprop=url`;
+  try {
+    const ctrl = new AbortController(), tm = setTimeout(() => ctrl.abort(), 7000);
+    const res = await fetch(url, {signal:ctrl.signal}); clearTimeout(tm);
+    const j = await res.json();
+    const pages = Object.values(j?.query?.pages || {})
+      .filter(p => p.thumbnail && p.thumbnail.width >= p.thumbnail.height * 1.1 && !BAD_IMG.test(p.thumbnail.source))
+      .sort((a, b) => (a.index ?? 99) - (b.index ?? 99));
+    const p = pages[0];
+    const v = p ? {src:p.thumbnail.source, title:p.title, url:p.fullurl || `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(p.title)}`} : null;
+    photoMem[m.slug] = v; store.set(key, v ? JSON.stringify(v) : "-");
+    return v;
+  } catch(_) { return null; } // network problem: try again next time
+}
+function loadHeroPhoto(m){
+  getPhoto(m).then(v => {
+    const hero = $("#viewDetail .hero");
+    if (!v || !hero || state.selected !== m) return;
+    const img = new Image();
+    img.className = "hero-img"; img.alt = ""; img.decoding = "async"; img.referrerPolicy = "no-referrer";
+    img.onload = () => hero.classList.add("has-photo");
+    img.src = v.src;
+    hero.prepend(img);
+    hero.insertAdjacentHTML("beforeend", `<a class="credit" href="${esc(v.url)}" target="_blank" rel="noopener">Foto: Wikipedie · ${esc(v.title)}</a>`);
+  });
+}
+
+/* ================= Weather (Open-Meteo) ================= */
+const WX = c => c === 0 ? ["☀️","Jasno"] : c === 1 ? ["🌤️","Skoro jasno"] : c === 2 ? ["⛅","Polojasno"] : c === 3 ? ["☁️","Zataženo"]
+  : c <= 48 ? ["🌫️","Mlha"] : c <= 57 ? ["🌦️","Mrholení"] : c <= 65 ? ["🌧️","Déšť"] : c <= 67 ? ["🌧️","Mrznoucí déšť"]
+  : c <= 77 ? ["🌨️","Sněžení"] : c <= 82 ? ["🌦️","Přeháňky"] : c <= 86 ? ["🌨️","Sněhové přeháňky"] : ["⛈️","Bouřky"];
+const DOW = ["Ne","Po","Út","St","Čt","Pá","So"];
+const wxMem = {};
+async function getWeather(m){
+  const k = `${m.lat.toFixed(1)},${m.lng.toFixed(1)}`;
+  const hit = wxMem[k];
+  if (hit && Date.now() - hit.at < 3 * 3600e3) return hit.data;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${m.lat}&longitude=${m.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FBerlin&forecast_days=16`;
+  try {
+    const ctrl = new AbortController(), tm = setTimeout(() => ctrl.abort(), 7000);
+    const res = await fetch(url, {signal:ctrl.signal}); clearTimeout(tm);
+    const j = await res.json();
+    if (!j.daily || !j.daily.time) return null;
+    wxMem[k] = {at:Date.now(), data:j.daily};
+    return j.daily;
+  } catch(_) { return null; }
+}
+function targetDay(){
+  const w = state.when;
+  if (w && /^\d{4}/.test(w)) return w;
+  if (w === "weekend") return ymd(weekendDays()[0]);
+  return ymd(todayDate());
+}
+function loadWeather(m){
+  const box = $("#wx"); if (!box) return;
+  if (status(m).k === "closed"){ box.remove(); return; }
+  getWeather(m).then(d => {
+    const box = $("#wx");
+    if (!box || state.selected !== m) return;
+    if (!d){ box.innerHTML = `<h3>Počasí</h3><p class="wx-note">Předpověď se teď nepodařilo načíst.</p>`; return; }
+    const tgt = targetDay();
+    const cells = d.time.map((t, i) => {
+      const dt = parseD(t), [ico, lbl] = WX(d.weather_code[i]);
+      const open = openOn(m, dt), rain = d.precipitation_probability_max?.[i];
+      return `<div class="wx-day${t === tgt ? " tgt" : ""}${open ? "" : " shut"}" title="${lbl}${open ? "" : " · trh zavřený"}">
+        <span class="wx-dow">${t === ymd(todayDate()) ? "Dnes" : DOW[dt.getDay()]}</span><span class="wx-date">${dt.getDate()}. ${dt.getMonth()+1}.</span>
+        <span class="wx-ico">${ico}</span><b>${Math.round(d.temperature_2m_max[i])}°</b><span class="wx-min">${Math.round(d.temperature_2m_min[i])}°</span>
+        ${rain >= 30 ? `<span class="wx-rain">💧${rain} %</span>` : ""}</div>`;
+    }).join("");
+    const ti = d.time.indexOf(tgt);
+    const head = ti >= 0 ? (() => { const [ico, lbl] = WX(d.weather_code[ti]); const dt = parseD(tgt);
+      return `${ico} ${lbl}, ${Math.round(d.temperature_2m_max[ti])}° / ${Math.round(d.temperature_2m_min[ti])}° · ${tgt === ymd(todayDate()) ? "dnes" : `${DOW[dt.getDay()].toLowerCase()} ${dt.getDate()}. ${dt.getMonth()+1}.`}`; })()
+      : "Vybraný den je mimo 16denní předpověď";
+    box.innerHTML = `<h3>Počasí <small>${head}</small></h3><div class="wx-strip">${cells}</div><p class="wx-note">Šedé dny = trh má zavřeno. Zdroj: Open-Meteo</p>`;
+    const t = box.querySelector(".tgt"); if (t) box.querySelector(".wx-strip").scrollLeft = t.offsetLeft - 16;
+  });
+}
+
+/* ================= Trip planner ================= */
+const TRIP_MAX = 10;
+let trip = (() => { try { return JSON.parse(store.get("vt_trip") || "[]"); } catch(_) { return []; } })();
+const bySlug = s => MARKETS.find(m => m.slug === s);
+trip = trip.filter(bySlug);
+const inTrip = m => trip.includes(m.slug);
+const tripMarkets = () => trip.map(bySlug).filter(Boolean);
+function saveTrip(){ store.set("vt_trip", JSON.stringify(trip)); renderFilters(); if (state.tripView) refreshMarkers(); if (!$("#viewTrip").hidden) renderTrip(); drawTrip(); }
+function toggleTrip(m){
+  if (inTrip(m)) trip = trip.filter(s => s !== m.slug);
+  else {
+    if (trip.length >= TRIP_MAX){ toast(`Výlet může mít nejvýš ${TRIP_MAX} zastávek`); return; }
+    trip.push(m.slug);
+  }
+  saveTrip();
+  toast(inTrip(m) ? `Přidáno do výletu (${trip.length})` : "Odebráno z výletu");
+  if (state.selected === m) renderDetail(m);
+}
+function tripLength(list){
+  let km = 0, prev = state.me;
+  for (const m of list){ if (prev) km += distKm(prev, m); prev = m; }
+  return km;
+}
+function optimizeTrip(){
+  let pts = tripMarkets();
+  if (pts.length < 3 && !state.me) return;
+  const start = state.me || pts[0];
+  let rest = state.me ? pts.slice() : pts.slice(1), order = state.me ? [] : [pts[0]], cur = start;
+  while (rest.length){ // nearest neighbour
+    let bi = 0; rest.forEach((m, i) => { if (distKm(cur, m) < distKm(cur, rest[bi])) bi = i; });
+    cur = rest[bi]; order.push(cur); rest.splice(bi, 1);
+  }
+  const fixed = state.me ? 0 : 1, len = a => tripLength(state.me ? a : a) - (state.me ? 0 : 0);
+  let improved = true;
+  while (improved){ // 2-opt on the open path
+    improved = false;
+    for (let i = fixed; i < order.length - 1; i++) for (let k = i + 1; k < order.length; k++){
+      const cand = order.slice(0, i).concat(order.slice(i, k + 1).reverse(), order.slice(k + 1));
+      if (len(cand) + 1e-9 < len(order)){ order = cand; improved = true; }
+    }
+  }
+  const before = tripLength(tripMarkets());
+  trip = order.map(m => m.slug); saveTrip();
+  const after = tripLength(order);
+  toast(after < before - .5 ? `Trasa zkrácena o ${fmtKm(before - after)}` : "Trasa už je nejkratší");
+}
+function tripNavUrl(){
+  const list = tripMarkets(); if (!list.length) return "#";
+  const ll = m => `${m.lat},${m.lng}`;
+  const origin = state.me ? `${state.me.lat},${state.me.lng}` : ll(list[0]);
+  const stops = state.me ? list : list.slice(1);
+  const dest = stops.length ? stops[stops.length - 1] : list[0];
+  const way = stops.slice(0, -1).map(ll).join("|");
+  return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${ll(dest)}${way ? `&waypoints=${encodeURIComponent(way)}` : ""}&travelmode=driving`;
+}
+const tripLayer = L.layerGroup();
+function drawTrip(){
+  tripLayer.clearLayers();
+  const list = tripMarkets();
+  if (!list.length || $("#viewTrip").hidden){ map.removeLayer(tripLayer); return; }
+  const line = (state.me ? [state.me] : []).concat(list.map(m => L.latLng(m.lat, m.lng)));
+  if (line.length > 1) L.polyline(line, {className:"trip-line", interactive:false}).addTo(tripLayer);
+  list.forEach((m, i) => L.marker([m.lat, m.lng], {icon:L.divIcon({className:"", iconSize:[26,26], iconAnchor:[13,58], html:`<div class="tripnum">${i+1}</div>`}), interactive:false, zIndexOffset:3000}).addTo(tripLayer));
+  tripLayer.addTo(map);
+}
+function fitTrip(){
+  const list = tripMarkets(); if (!list.length) return;
+  const b = L.latLngBounds(list.map(m => [m.lat, m.lng])); if (state.me) b.extend(state.me);
+  const pad = isDesktop() ? {paddingTopLeft:[440,90], paddingBottomRight:[40,40]} : {paddingTopLeft:[30,100], paddingBottomRight:[30, sheetPx() + 30]};
+  map.fitBounds(b, {...pad, maxZoom:13});
+}
+function tripDayInfo(){
+  const w = state.when;
+  if (w && /^\d{4}/.test(w)) return {d:parseD(w), label:`${parseD(w).getDate()}. ${parseD(w).getMonth()+1}.`};
+  if (w === "today") return {d:todayDate(), label:"dnes"};
+  if (w === "weekend"){ const d = weekendDays()[0]; return {d, label:`o víkendu (${d.getDate()}. ${d.getMonth()+1}.)`}; }
+  return null;
+}
+function renderTrip(){
+  const list = tripMarkets(), day = tripDayInfo();
+  const km = tripLength(list);
+  const v = $("#viewTrip");
+  v.innerHTML = `
+  <div class="trip">
+    <div class="trip-head">
+      <button class="iconbtn" id="tripBack" aria-label="Zpět na seznam">${ICON.back}</button>
+      <div class="grow"><h2>Můj výlet</h2>
+        <p>${list.length ? `${list.length} ${plural(list.length,"zastávka","zastávky","zastávek")} · cca ${fmtKm(km)} vzdušnou čarou${state.me ? " od vás" : ""}` : "Zatím prázdný"}</p></div>
+    </div>
+    ${day && list.length ? `<p class="trip-day">📅 Plán pro ${day.label}. Zastávky, kde má trh ten den zavřeno, jsou označené.</p>` : ""}
+    ${list.length ? `<ol class="stops">${list.map((m, i) => {
+        const closed = day && !openOn(m, day.d);
+        return `<li class="${closed ? "warn" : ""}">
+          <span class="num">${i+1}</span>
+          <button class="stop-body" data-open="${m.id}"><b>${esc(m.c)}</b><span>${COUNTRIES[m.cc].flag} ${esc(m.n)}</span>
+            ${closed ? `<em>⚠ ${day.label} zavřeno</em>` : `<em class="ok-t">${fmtRange(m)}</em>`}</button>
+          <span class="stop-acts">
+            <button data-up="${i}" aria-label="Posunout výš" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button data-down="${i}" aria-label="Posunout níž" ${i === list.length-1 ? "disabled" : ""}>↓</button>
+            <button data-del="${i}" aria-label="Odebrat z výletu">✕</button>
+          </span></li>`; }).join("")}</ol>
+      <div class="trip-actions">
+        <a class="btn primary" href="${tripNavUrl()}" target="_blank" rel="noopener">${ICON.nav} Navigovat celou trasu</a>
+        <button class="btn" id="tripOpt" ${list.length < 2 ? "disabled" : ""}>🔀 Nejkratší pořadí</button>
+        <button class="btn" id="tripFit">🗺️ Na mapě</button>
+        <button class="btn danger" id="tripClear">Vyprázdnit výlet</button>
+      </div>
+      <p class="note">${state.me ? "Trasa začíná u vaší polohy." : "Povolte polohu a trasa začne u vás."} Navigace v Google Maps zvládne až 10 zastávek.</p>`
+    : `<div class="empty">${EMPTY_ART}<div>Přidejte trhy do výletu tlačítkem <b>„Do výletu“</b> v detailu trhu.<br>Pak je seřadíme do nejkratší trasy a spustíte navigaci.</div></div>`}
+  </div>`;
+  $("#tripBack").onclick = () => showView("list");
+  v.querySelectorAll("[data-open]").forEach(b => b.onclick = () => selectMarket(MARKETS[+b.dataset.open]));
+  v.querySelectorAll("[data-up]").forEach(b => b.onclick = () => { const i = +b.dataset.up; [trip[i-1], trip[i]] = [trip[i], trip[i-1]]; saveTrip(); });
+  v.querySelectorAll("[data-down]").forEach(b => b.onclick = () => { const i = +b.dataset.down; [trip[i+1], trip[i]] = [trip[i], trip[i+1]]; saveTrip(); });
+  v.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { trip.splice(+b.dataset.del, 1); saveTrip(); });
+  if (list.length){
+    $("#tripOpt").onclick = optimizeTrip;
+    $("#tripFit").onclick = fitTrip;
+    $("#tripClear").onclick = () => { if (confirm("Opravdu vyprázdnit výlet?")){ trip = []; saveTrip(); } };
+  }
+}
+function openTrip(){
+  if (state.selected) closeDetail(true);
+  showView("trip");
+  renderTrip(); drawTrip(); fitTrip();
+  if (!isDesktop()) setSheet("mid");
+}
 
 /* ================= Install / offline (PWA) ================= */
 const isStandalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;

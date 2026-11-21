@@ -1,5 +1,5 @@
 /* Vánoční trhy – service worker: offline app shell, cached libraries and recently viewed map tiles */
-const VERSION = "v8";
+const VERSION = "v9";
 const SHELL = `vt-shell-${VERSION}`, LIBS = "vt-libs-1", TILES = "vt-tiles-1";
 const SHELL_FILES = ["./", "index.html", "markets.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
@@ -39,6 +39,23 @@ self.addEventListener("fetch", e => {
       const net = fetch(req).then(res => { if (res.ok || res.type === "opaque"){ c.put(req, res.clone()); trimTiles(); } return res; }).catch(() => hit);
       return hit || net;
     }));
+    return;
+  }
+  // Photos from Wikimedia: cache first
+  if (url.hostname === "upload.wikimedia.org"){
+    e.respondWith(caches.open(TILES).then(async c => {
+      const hit = await c.match(req);
+      if (hit) return hit;
+      const res = await fetch(req);
+      if (res.ok || res.type === "opaque"){ c.put(req, res.clone()); trimTiles(); }
+      return res;
+    }));
+    return;
+  }
+  // Wikipedia photo lookup and weather: network first, cached copy offline
+  if (/\.wikipedia\.org$/.test(url.hostname) || url.hostname === "api.open-meteo.com"){
+    e.respondWith(fetch(req).then(res => { if (res.ok){ const copy = res.clone(); caches.open(LIBS).then(c => c.put(req, copy)); } return res; })
+      .catch(() => caches.match(req)));
     return;
   }
   // Libraries and fonts: cache first

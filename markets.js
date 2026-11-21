@@ -443,3 +443,35 @@ window.COUNTRIES = {CZ:{flag:"🇨🇿",name:"Česko"},DE:{flag:"🇩🇪",name:
     strom:{i:"🎄",l:"Velký strom"}, kolo:{i:"🎡",l:"Vyhlídkové kolo"}, unesco:{i:"🏛️",l:"Památka UNESCO"},
   };
 })();
+
+/* ---------- Verified 2026/27 data: neighbouring countries ---------- */
+(() => {
+  const U = {
+    "Drážďany|Striezelmarkt": {f:"2026-11-25",t:"2026-12-24",web:"https://striezelmarkt.dresden.de/",tags:["strom","program","deti"],
+      d:"Nejstarší doložený vánoční trh v Německu, letos už 592. ročník. Obří pyramida, drážďanská štola a krušnohorská řemesla na Altmarktu."},
+    "Lipsko|Weihnachtsmarkt": {f:"2026-11-24",t:"2026-12-23",hv:1,h:"ne–čt 11–21, pá–so 11–22",web:"https://www.leipzig.de/",tags:["strom","program","deti"]},
+    "Norimberk|Christkindlesmarkt": {f:"2026-11-27",t:"2026-12-24",hv:1,h:"10:00–21:00 (24. 12. do 14:00)",web:"https://www.christkindlesmarkt.de/",tags:["program","deti"],
+      d:"Světoznámý trh na Hauptmarktu. Zahajuje ho Christkind 27. 11. v 17:30 z balkonu Frauenkirche. Perníky Lebkuchen, klobásky a figurky ze sušených švestek."},
+    "Mnichov|Christkindlmarkt Marienplatz": {f:"2026-11-20",t:"2026-12-24",web:"https://www.muenchen.de/veranstaltungen/muenchner-christkindlmarkt-marienplatz",tags:["strom","program"]},
+    "Vídeň|Wiener Christkindlmarkt Rathausplatz": {f:"2026-11-13",t:"2026-12-26",hv:1,h:"10:00–22:00 (24. 12. do 18:30)",web:"https://www.christkindlmarkt.at/",tags:["strom","kluziste","deti","program"]},
+    "Vídeň|Weihnachtsmarkt Schloss Schönbrunn": {f:"2026-11-06",t:"2027-01-06",hv:1,h:"10:00–21:00 (24. 12. do 16:00, od 25. 12. do 19:00)",web:"https://www.weihnachtsmarkt-schoenbrunn.at/",tags:["unesco","program","deti"]},
+    "Salcburk|Salzburger Christkindlmarkt": {f:"2026-11-19",t:"2027-01-01",web:"https://www.christkindlmarkt.co.at/",tags:["unesco","program"],
+      d:"52. ročník trhu na Domplatzu, Residenzplatzu a části Kapitelplatzu pod pevností Hohensalzburg."},
+    "Linec|Christkindlmarkt Hauptplatz": {f:"2026-11-21",t:"2026-12-24",hv:1,h:"10:00–21:00 (24. 12. 9–16)",tags:["strom"]},
+    "Innsbruck|Christkindlmarkt Altstadt": {f:"2026-11-15",t:"2026-12-23",hv:1,h:"11:00–21:00",web:"https://www.innsbruck.info/",tags:["strom","unesco"]},
+    "Innsbruck|Marktplatz": {f:"2026-11-13",t:"2026-12-23",web:"https://www.innsbruck.info/",d:"Trh na Marktplatzu u řeky Inn s výhledem na barevné domy a Alpy."},
+    "Štýrský Hradec|Advent in Graz": {f:"2026-11-20",t:"2026-12-24",web:"https://www.graztourismus.at/advent/",tags:["kluziste","betlem","unesco"],
+      d:"Patnáct adventních trhů v historickém centru (UNESCO). Hlavní je Christkindlmarkt na Hauptplatzu, kluziště Graz Winter World běží do konce ledna."},
+    "Vratislav|Jarmark Bożonarodzeniowy": {f:"2026-11-20",t:"2027-01-07",hv:1,h:"10:00–21:00",web:"https://www.wroclaw.pl/",tags:["strom","deti","program"],
+      d:"Jeden z nejhezčích trhů v Polsku na Rynku a ulici Świdnické, zahájení 20. 11. v 17:00. Hledejte vratislavské trpaslíky!"},
+    "Pasov|Christkindlmarkt am Domplatz": {f:"2026-11-24",t:"2026-12-22",hv:1,h:"po–čt 10–20, pá–so 10–21, ne 11–20",web:"https://tourism.passau.de/",tags:["program"],
+      d:"Trh pod dómem sv. Štěpána. Od středy do soboty ve 12:00 varhanní koncert na největších chrámových varhanách světa."},
+    "Berlín|Weihnachtszauber Gendarmenmarkt": {f:"2026-11-23",t:"2026-12-31",web:"https://www.berlin.de/weihnachtsmarkt/",tags:["program"],
+      d:"Elegantní trh mezi dvěma dómy se po rekonstrukci náměstí vrací na své místo. Končí silvestrovskou oslavou s ohňostrojem, vstup je placený."},
+  };
+  for (const m of window.MARKETS){
+    const o = U[m.c + "|" + m.n];
+    if (!o) continue;
+    Object.assign(m, o); m.v = 1; delete m.est;
+  }
+})();
