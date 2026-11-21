@@ -9,7 +9,10 @@ Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slov
 - Tlačítkem ✏️ **Oblast** nakreslete prstem na mapě libovolnou oblast a zobrazí se trhy v ní
 - Detail trhu: termín, otevírací doba, vzdálenost, popis, navigace (Google Maps) a vyhledání dalších informací
 - Stav trhu: probíhá / začíná za X dní / skončil
-- Filtry „Otevřeno dnes“ a podle zemí
+- Hledání města nebo trhu (i bez diakritiky)
+- ♥ Oblíbené trhy (uloží se v zařízení), na mapě označené srdíčkem
+- Filtr podle termínu: Otevřeno teď, Dnes, Tento víkend nebo libovolný den
+- Filtr podle zemí
 - Detail trhu s odpočtem („Začíná za 7 dní“, „Otevřeno · do 22:00“) a sdílením odkazu přímo na trh
 - Úvodní průvodce, sváteční vzhled a padající sníh (lze vypnout)
 - Funguje na mobilu i počítači, světlý i tmavý (noční) režim

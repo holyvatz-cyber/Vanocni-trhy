@@ -166,6 +166,27 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 .ti{font-size:13px;line-height:1}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
 .tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:13px;font-weight:600}
+.search{display:flex;align-items:center;gap:8px;margin:0 20px 10px;padding:0 6px 0 12px;height:44px;border-radius:14px;background:var(--panel-2);border:1.5px solid var(--line);color:var(--muted);flex:none}
+.search:focus-within{border-color:var(--gold)}
+.search input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:16px;outline:none;-webkit-appearance:none}
+.search input::-webkit-search-cancel-button{display:none}
+.search button{width:32px;height:32px;display:grid;place-items:center;border-radius:10px}
+#datePick{position:fixed;left:50%;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.chip .cnt{display:inline-block;min-width:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;line-height:18px;text-align:center;margin-left:2px}
+.chip[aria-pressed="true"] .cnt{background:var(--gold);color:#1e1a16}
+.chip .x{margin-left:4px;opacity:.7}
+.chip.fav{color:var(--accent)}
+.chip.fav[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.sep{flex:none;width:1px;background:var(--line);margin:4px 2px}
+.heart{color:var(--accent);font-size:14px}
+.favbtn{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;transition:transform .2s;z-index:1}
+.favbtn:active{transform:scale(.88)}
+.favbtn.on{background:#fff;color:#c8263c}
+.favbtn.on svg{fill:currentColor;animation:beat .35s}
+@keyframes beat{50%{transform:scale(1.3)}}
+.pin{position:relative}
+.pin.fav::after{content:"♥";position:absolute;top:-4px;right:-4px;width:17px;height:17px;border-radius:50%;background:#fff;color:#c8263c;font-size:11px;line-height:17px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .empty{text-align:center;color:var(--muted);padding:28px 20px}
 .empty svg{width:64px;height:64px;margin-bottom:8px;opacity:.7}
 .note{color:var(--muted);font-size:12px;padding:14px 10px 0;text-align:center}
@@ -269,7 +290,13 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
         Oblast <svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
+    <label class="search">
+      <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+      <input id="q" type="search" placeholder="Hledat město nebo trh" autocomplete="off" enterkeyhint="search" aria-label="Hledat město nebo trh">
+      <button type="button" id="qClear" hidden aria-label="Smazat hledání"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </label>
     <div class="filters" id="filters"></div>
+    <input type="date" id="datePick" min="2026-11-01" max="2027-01-31" tabindex="-1" aria-hidden="true">
     <ul id="list"></ul>
   </div>
   <div class="view" id="viewDetail" hidden></div>
@@ -313,9 +340,9 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<script src="markets.js?v=6"></script>
+<script src="markets.js?v=7"></script>
 <script>
-const APP_VERSION = "v6";
+const APP_VERSION = "v7";
 const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES, TAGS = window.TAGS || {};
 
 /* ================= Helpers ================= */
@@ -395,6 +422,7 @@ const ICON = {
   pin:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5a7 7 0 1 0-14 0C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   nav:'<svg class="i" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg>',
   share:'<svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+  heart:'<svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></svg>',
   web:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.5 5.4 3.5 8.5s-1 5.9-3.5 8.5c-2.5-2.6-3.5-5.4-3.5-8.5s1-5.9 3.5-8.5z"/></svg>',
   ext:'<svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
 };
@@ -405,8 +433,10 @@ const EMPTY_ART = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6l12
 /* ================= State ================= */
 const state = {
   me:null, area:null, areaPts:null, selected:null,
-  countries:new Set(Object.keys(COUNTRIES)), onlyOpen:false,
+  countries:new Set(Object.keys(COUNTRIES)), when:null, favOnly:false, q:"",
 };
+
+const favs = new Set((() => { try { return JSON.parse(store.get("vt_fav") || "[]"); } catch(_) { return []; } })());
 
 /* ================= Map ================= */
 const map = L.map("map", {zoomControl:false, minZoom:5, maxBounds:[[42,2],[58,28]], maxBoundsViscosity:.8});
@@ -447,7 +477,7 @@ const markerLayer = L.markerClusterGroup({
 function pinIcon(m){
   const sel = state.selected === m;
   return L.divIcon({className:"", iconSize:[36,46], iconAnchor:[18,45],
-    html:`<div class="pin ${status(m).k}${sel ? " sel" : ""}">${PIN_SVG}</div>`});
+    html:`<div class="pin ${status(m).k}${sel ? " sel" : ""}${favs.has(m.slug) ? " fav" : ""}">${PIN_SVG}</div>`});
 }
 MARKETS.forEach((m, i) => {
   m.id = i; m.slug = slug(m);
@@ -525,6 +555,7 @@ function renderDetail(m){
     <div class="hero ${s.k}">
       ${HERO_ART}
       <button class="back" id="btnBack" aria-label="Zpět na seznam">${ICON.back}</button>
+      <button class="favbtn${isFav(m) ? " on" : ""}" id="btnFav" aria-pressed="${isFav(m)}" aria-label="${isFav(m) ? "Odebrat z oblíbených" : "Přidat do oblíbených"}">${ICON.heart}</button>
       <div class="hero-country">${co.flag} ${esc(co.name)}</div>
       <h2>${esc(m.c)}</h2>
       <p>${esc(m.n)}</p>
@@ -546,6 +577,7 @@ function renderDetail(m){
     </div>
   </div>`;
   $("#btnBack").onclick = closeDetail;
+  $("#btnFav").onclick = () => toggleFav(m);
   $("#btnShare").onclick = () => shareMarket(m);
 }
 async function shareMarket(m){
@@ -649,22 +681,105 @@ function clearArea(silent){
 }
 $("#areaChip").onclick = () => clearArea(false);
 
+/* ================= Favorites ================= */
+const isFav = m => favs.has(m.slug);
+function toggleFav(m){
+  if (favs.has(m.slug)) favs.delete(m.slug); else favs.add(m.slug);
+  store.set("vt_fav", JSON.stringify([...favs]));
+  m.marker.setIcon(pinIcon(m));
+  toast(isFav(m) ? "Přidáno do oblíbených" : "Odebráno z oblíbených");
+  if (state.favOnly && !favs.size) state.favOnly = false;
+  renderFilters(); refreshAll();
+  if (state.selected === m) renderDetail(m);
+}
+
+/* ================= Date logic ================= */
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+function openOn(m, d){
+  const iso = ymd(d);
+  return m.f <= iso && iso <= m.t && (!m.days || m.days.includes(iso));
+}
+function openNow(m){
+  if (!openOn(m, todayDate())) return false;
+  const h = parseHours(m.h) || {o:600, c:1200};   // unknown hours: assume usual 10–20
+  const n = now(), mins = n.getHours()*60 + n.getMinutes();
+  return mins >= h.o && mins < h.c;
+}
+function weekendDays(){
+  const t = todayDate(), wd = t.getDay();
+  if (wd === 0) return [t];
+  const sat = addDays(t, 6 - wd);
+  return [sat, addDays(sat, 1)];
+}
+function whenLabel(){
+  const w = state.when;
+  if (!w) return "";
+  if (w === "now") return "otevřeno teď";
+  if (w === "today") return "otevřeno dnes";
+  if (w === "weekend") return "otevřeno o víkendu";
+  const d = parseD(w); return `otevřeno ${d.getDate()}. ${d.getMonth()+1}.`;
+}
+function matchWhen(m){
+  const w = state.when;
+  if (!w) return true;
+  if (w === "now") return openNow(m);
+  if (w === "today") return openOn(m, todayDate());
+  if (w === "weekend") return weekendDays().some(d => openOn(m, d));
+  return openOn(m, parseD(w));
+}
+
+/* ================= Search ================= */
+const norm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+MARKETS.forEach(m => { m.hay = norm(`${m.c} ${m.n} ${COUNTRIES[m.cc].name}`); });
+const qInput = $("#q");
+let qTimer;
+qInput.addEventListener("input", () => {
+  $("#qClear").hidden = !qInput.value;
+  clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = norm(qInput.value.trim()); refreshList(); $("#list").scrollTop = 0; }, 120);
+});
+qInput.addEventListener("focus", () => { if (!isDesktop()) setSheet("max"); });
+qInput.addEventListener("keydown", e => {
+  if (e.key === "Enter"){ const first = $("#list .item"); if (first){ qInput.blur(); first.click(); } }
+  if (e.key === "Escape"){ qInput.value = ""; qInput.dispatchEvent(new Event("input")); qInput.blur(); }
+});
+$("#qClear").onclick = () => { qInput.value = ""; qInput.dispatchEvent(new Event("input")); qInput.focus(); };
+
 /* ================= Filters ================= */
+const datePick = $("#datePick");
+datePick.addEventListener("change", () => { if (datePick.value){ state.when = datePick.value; renderFilters(); refreshAll(); } });
 function renderFilters(){
   const f = $("#filters");
+  const keep = f.scrollLeft;
   f.innerHTML = "";
-  const mk = (label, pressed, fn) => {
+  const mk = (label, pressed, fn, cls = "") => {
     const b = document.createElement("button");
-    b.className = "chip"; b.textContent = label; b.setAttribute("aria-pressed", pressed);
+    b.className = "chip " + cls; b.innerHTML = label; b.setAttribute("aria-pressed", pressed);
     b.onclick = () => { fn(); renderFilters(); refreshAll(); };
     f.appendChild(b);
+    return b;
   };
-  mk("Probíhá dnes", state.onlyOpen, () => state.onlyOpen = !state.onlyOpen);
+  mk(`♥ Oblíbené${favs.size ? ` <span class="cnt">${favs.size}</span>` : ""}`, state.favOnly, () => state.favOnly = !state.favOnly, "fav");
+  const when = (key, label) => mk(label, state.when === key, () => state.when = state.when === key ? null : key);
+  when("now", "Otevřeno teď");
+  when("today", "Dnes");
+  when("weekend", "Tento víkend");
+  const custom = state.when && /^\d{4}/.test(state.when);
+  const cd = custom ? parseD(state.when) : null;
+  const dateBtn = mk(custom ? `📅 ${cd.getDate()}. ${cd.getMonth()+1}. <span class="x">✕</span>` : "📅 Vybrat den", custom, () => {
+    if (custom){ state.when = null; return; }
+  });
+  if (!custom) dateBtn.onclick = () => {
+    datePick.value = ymd(todayDate());
+    try { datePick.showPicker(); } catch(_) { datePick.focus(); datePick.click(); }
+  };
+  f.insertAdjacentHTML("beforeend", '<span class="sep" aria-hidden="true"></span>');
   Object.entries(COUNTRIES).forEach(([cc, co]) =>
     mk(`${co.flag} ${co.name}`, state.countries.has(cc), () => state.countries.has(cc) ? state.countries.delete(cc) : state.countries.add(cc)));
+  f.scrollLeft = keep;
+  if (custom){ const c = dateBtn; f.scrollLeft = Math.max(keep, c.offsetLeft + c.offsetWidth - f.clientWidth + 20); }
 }
 function visibleMarkets(){
-  return MARKETS.filter(m => state.countries.has(m.cc) && (!state.onlyOpen || status(m).k === "open"))
+  return MARKETS.filter(m => state.countries.has(m.cc) && matchWhen(m) && (!state.favOnly || isFav(m)))
     .map(m => { m.inArea = state.areaPts ? inPoly(m.lat, m.lng, state.areaPts) : true; return m; });
 }
 
@@ -677,26 +792,38 @@ function refreshMarkers(){
 }
 function refreshList(){
   const list = visibleMarkets();
-  let shown, title;
-  if (state.areaPts){ shown = list.filter(m => m.inArea); title = "V nakreslené oblasti"; }
-  else {
+  let shown, title, empty;
+  if (state.q){
+    const STOP = new Set(["vanocni","vanoce","trh","trhy","trhu","advent","adventni","namesti","nam","nam.","v","ve","na","christmas","market","weihnachtsmarkt"]);
+    const words = state.q.split(/\s+/).filter(w => w && !STOP.has(w));
+    shown = MARKETS.filter(m => state.countries.has(m.cc) && words.every(w => m.hay.includes(w)) && matchWhen(m) && (!state.favOnly || isFav(m)));
+    title = "Výsledky hledání";
+    empty = "Nic jsme nenašli.<br>Zkuste jiný název města nebo zrušte filtry.";
+  } else if (state.favOnly){
+    shown = list.filter(m => m.inArea);
+    title = "Oblíbené trhy";
+    empty = favs.size ? "Žádný z oblíbených trhů neodpovídá filtrům." : "Zatím nemáte oblíbené trhy.<br>Přidáte je srdíčkem v detailu trhu.";
+  } else if (state.areaPts){
+    shown = list.filter(m => m.inArea); title = "V nakreslené oblasti";
+    empty = "V nakreslené oblasti nejsou žádné trhy.<br>Zkuste ji zvětšit nebo upravit filtry.";
+  } else {
     const b = map.getBounds();
     shown = list.filter(m => b.contains([m.lat, m.lng]));
     title = state.me ? "Trhy kolem vás" : "Trhy na mapě";
+    empty = state.when ? "Tady na mapě nejsou žádné trhy otevřené v tomto termínu.<br>Posuňte mapu nebo změňte datum." : "Tady na mapě nejsou žádné trhy.<br>Posuňte mapu, nebo nakreslete oblast.";
   }
   if (state.me){ shown.forEach(m => m.km = distKm(state.me, m)); shown.sort((a, b) => a.km - b.km); }
   else shown.sort((a, b) => a.c.localeCompare(b.c, "cs") || a.n.localeCompare(b.n, "cs"));
   const open = shown.filter(m => status(m).k === "open").length;
   $("#listTitle").textContent = title;
-  $("#listSub").textContent = `${shown.length} ${plural(shown.length,"trh","trhy","trhů")}` + (open ? ` · ${open} právě ${plural(open,"probíhá","probíhají","probíhá")}` : "") + (state.me ? " · podle vzdálenosti" : "");
+  const wl = whenLabel();
+  $("#listSub").textContent = `${shown.length} ${plural(shown.length,"trh","trhy","trhů")}` +
+    (wl ? ` · ${wl}` : open ? ` · ${open} právě ${plural(open,"probíhá","probíhají","probíhá")}` : "") + (state.me ? " · podle vzdálenosti" : "");
   $("#areaChip").hidden = !state.areaPts;
 
   const ul = $("#list");
-  if (!shown.length){
-    ul.innerHTML = `<li class="empty">${EMPTY_ART}<div>${state.areaPts ? "V nakreslené oblasti nejsou žádné trhy.<br>Zkuste ji zvětšit nebo upravit filtry." : "Tady na mapě nejsou žádné trhy.<br>Posuňte mapu, nebo nakreslete oblast."}</div></li>`;
-    return;
-  }
-  ul.innerHTML = shown.map((m, i) => {
+  if (!shown.length){ ul.innerHTML = `<li class="empty">${EMPTY_ART}<div>${empty}</div></li>`; return; }
+  ul.innerHTML = shown.slice(0, 150).map((m, i) => {
     const s = status(m), co = COUNTRIES[m.cc];
     const d = s.date || (s.k === "closed" ? parseD(m.t) : parseD(m.f));
     const box = s.k === "open" ? `<div class="datebox open"><b>●</b><span>teď</span></div>`
@@ -704,13 +831,14 @@ function refreshList(){
     return `<li style="--i:${Math.min(i, 14)}"><button class="item" data-id="${m.id}">
       ${box}
       <span class="body">
-        <span class="name">${esc(m.c)}</span>
+        <span class="name">${esc(m.c)}${isFav(m) ? ' <span class="heart" aria-label="oblíbené">♥</span>' : ""}</span>
         <span class="city">${co.flag} ${esc(m.n)}</span>
         <span class="meta"><span class="st ${s.k}${s.live ? " live" : ""}">${s.label}</span>${badge(m)}${(m.tags||[]).slice(0,3).map(t => TAGS[t] ? `<span class="ti" title="${TAGS[t].l}">${TAGS[t].i}</span>` : "").join("")}</span>
       </span>
       ${state.me ? `<span class="dist">${fmtKm(m.km)}<small>od vás</small></span>` : ""}
     </button></li>`;
-  }).join("") + `<li class="note">„Ověřeno 2026“ = termín podle zdrojů pro letošní sezónu. „Odhad“ = obvyklý termín, ověřte ho u pořadatele.</li>`;
+  }).join("") + (shown.length > 150 ? `<li class="note">Zobrazeno 150 nejbližších trhů z ${shown.length}. Přibližte mapu nebo použijte hledání.</li>` : "")
+    + `<li class="note">„Ověřeno 2026“ = termín podle zdrojů pro letošní sezónu. „Odhad“ = obvyklý termín, ověřte ho u pořadatele.</li>`;
 }
 function refreshAll(){ refreshMarkers(); refreshList(); }
 
