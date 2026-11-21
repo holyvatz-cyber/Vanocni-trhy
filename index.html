@@ -277,11 +277,33 @@ function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add
 /* ---------- Map ---------- */
 const map = L.map("map", {zoomControl:false, minZoom:5, maxBounds:[[42,2],[58,28]], maxBoundsViscosity:.8});
 L.control.zoom({position:"bottomright"}).addTo(map);
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom:19,
-  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map);
+const APP_VERSION = "v3";
+// Map tile providers without API keys; if one fails to load, switch to the next.
+const TILE_PROVIDERS = [
+  {url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png", opt:{maxZoom:19,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}},
+  {url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", opt:{maxZoom:19,
+    attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap'}},
+  {url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", opt:{maxZoom:17, subdomains:"abc",
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; OpenTopoMap'}},
+];
+let tileIdx = 0, tileLayer = null;
+function useTiles(i){
+  if (tileLayer) map.removeLayer(tileLayer);
+  tileIdx = i;
+  const pr = TILE_PROVIDERS[i];
+  let ok = 0, bad = 0;
+  tileLayer = L.tileLayer(pr.url, pr.opt);
+  tileLayer.on("tileload", () => { ok++; });
+  tileLayer.on("tileerror", () => {
+    bad++;
+    if (ok === 0 && bad >= 3 && tileIdx === i && i + 1 < TILE_PROVIDERS.length) useTiles(i + 1);
+  });
+  tileLayer.addTo(map);
+}
+map.attributionControl.setPrefix(`Vánoční trhy ${APP_VERSION} · <a href="https://leafletjs.com">Leaflet</a>`);
 map.fitBounds([[48.55,12.1],[51.06,18.86]]); // Česko
+useTiles(0);
 
 const markerLayer = L.layerGroup().addTo(map);
 MARKETS.forEach((m, i) => {
