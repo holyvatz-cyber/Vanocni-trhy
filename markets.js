@@ -382,3 +382,64 @@ window.COUNTRIES = {CZ:{flag:"🇨🇿",name:"Česko"},DE:{flag:"🇩🇪",name:
     window.MARKETS.push({n: place || "Vánoční trhy", c, cc, lat, lng, f:d.f, t:d.t, h:d.h, d:DESC[cc], est:true});
   }
 })();
+
+/* ---------- Verified 2026/27 data (from 2026 sources, checked Nov 2026) ----------
+   key: "City|Place"  → overrides. v:1 = dates confirmed by 2026 sources.
+   tags: kluziste, betlem, deti, program, strom, kolo, unesco */
+(() => {
+  const U = {
+    "Praha|Staroměstské náměstí": {f:"2026-11-28",t:"2027-01-06",h:"10:00–22:00",web:"https://prague.eu/cs/akce/vanocni-trhy-staromestske-namesti/",tags:["strom","program","unesco"]},
+    "Praha|Václavské náměstí": {f:"2026-11-28",t:"2027-01-06",h:"10:00–22:00",web:"https://prague.eu/cs/akce/vanocni-trhy-vaclavske-namesti/",tags:["program"]},
+    "Praha|Náměstí Míru": {f:"2026-11-20",t:"2026-12-24",tags:["strom"]},
+    "Brno|Náměstí Svobody": {f:"2026-11-21",t:"2026-12-23",web:"https://www.gotobrno.cz/",tags:["strom","program"]},
+    "Brno|Zelný trh": {f:"2026-11-13",t:"2026-12-31",web:"https://www.gotobrno.cz/",tags:["betlem","deti"]},
+    "Brno|Moravské náměstí": {f:"2026-11-13",t:"2026-12-31",web:"https://www.gotobrno.cz/",tags:["kluziste","deti"]},
+    "Brno|Dominikánské náměstí": {f:"2026-11-21",t:"2026-12-23",h:"dle programu města",web:"https://www.gotobrno.cz/",tags:["program"]},
+    "Ostrava|Masarykovo náměstí": {f:"2026-11-21",t:"2027-01-06",web:"https://www.ostrava.cz/",tags:["strom","program","deti","betlem","kluziste"],
+      d:"Ostravské Vánoce na čtyřech náměstích v centru: hlavní pódium a strom na Masarykově, program pro rodiny na Jiráskově náměstí a kluziště na náměstí Dr. E. Beneše."},
+    "Olomouc|Horní a Dolní náměstí": {f:"2026-11-22",t:"2026-12-24",hv:1,h:"10:00–20:00 (gastro do 22:00)",web:"https://www.olomouc.eu/",tags:["strom","unesco","kluziste"],
+      d:"Trhy na Horním a Dolním náměstí kolem sloupu Nejsvětější Trojice (UNESCO). Strom se rozsvítí 22. 11. v 18:00, kluziště Led&Fest je na Tržnici."},
+    "Plzeň|Náměstí Republiky": {f:"2026-11-21",t:"2026-12-23",hv:1,h:"10:00–20:00",web:"https://www.plzen.eu/",tags:["strom","betlem","program"],
+      d:"Adventní trhy pod katedrálou sv. Bartoloměje s betlémem a programem. Velká Mikulášská show 5. 12."},
+    "České Budějovice|Náměstí Přemysla Otakara II.": {f:"2026-11-18",t:"2027-01-06",web:"https://www.c-budejovice.cz/",tags:["kluziste","strom","program"],
+      d:"Českobudějovický advent na jednom z největších náměstí v Evropě. Kluziště kolem Samsonovy kašny, strom se rozsvítí 28. 11. v 16:30."},
+    "Český Krumlov|Advent v Krumlově": {f:"2026-11-21",t:"2027-01-03",hv:1,h:"po–čt 11–18, pá–ne 10–19",web:"https://www.ckrumlov.info/advent",tags:["betlem","unesco","program"],
+      d:"Vánoční trh na náměstí Svornosti v historickém centru pod zámkem (UNESCO). Strom se rozsvítí 29. 11. v 16:30."},
+    "Hradec Králové|Masarykovo náměstí": {web:"https://www.hradeckralove.org/",h:"dle programu města",d:"Menší vánoční trhy na Masarykově náměstí. Hlavní trhy jsou na Velkém náměstí."},
+    "Pardubice|Pernštýnské náměstí": {f:"2026-11-28",t:"2026-12-24",hv:1,h:"po–čt 13–18, pá 13–20, so 11–20, ne 11–19",web:"https://pardubice.eu/",tags:["strom","deti","program"],
+      d:"Advent s vůní perníku na Pernštýnském náměstí. Strom se rozsvítí 29. 11. v 17:00, o adventních víkendech je program i na zámku a v Automatických mlýnech."},
+    "Liberec|Náměstí Dr. E. Beneše": {f:"2026-11-26",t:"2026-12-23",h:"10:00–19:00",web:"https://www.visitliberec.eu/",tags:["strom"]},
+    "Ústí nad Labem|Lidické náměstí": {f:"2026-11-29",t:"2026-12-23",h:"12:00–19:00",web:"https://www.usti-nad-labem.cz/",tags:["kluziste","program"]},
+    "Karlovy Vary|Vánoční trhy v Dvořákových sadech": {f:"2026-11-29",t:"2027-01-01",web:"https://www.karlovyvary.cz/",tags:["betlem"]},
+    "Jihlava|Masarykovo náměstí": {f:"2026-11-29",t:"2026-12-31",web:"https://www.jihlava.cz/",tags:["kluziste","strom"]},
+    "Zlín|Náměstí Míru": {f:"2026-11-27",t:"2026-12-23",web:"https://www.zlin.eu/",tags:["strom","kolo"]},
+    "Opava|Horní náměstí": {f:"2026-11-20",t:"2026-12-23",web:"https://www.opava-city.cz/",tags:["strom"]},
+    "Kroměříž|Velké náměstí": {f:"2026-11-29",t:"2026-12-23",web:"https://www.mesto-kromeriz.cz/",tags:["strom","unesco"]},
+    "Tábor|Žižkovo náměstí": {n:"Advent na náměstí T. G. Masaryka",lat:49.4139,lng:14.6683,f:"2026-11-27",t:"2027-01-03",web:"https://www.visittabor.eu/",tags:["betlem","deti"],
+      d:"Adventní městečko se stylovými stánky, slaměným betlémem a Ježíškovou poštou."},
+    "Cheb|Náměstí Krále Jiřího z Poděbrad": {f:"2026-11-28",t:"2026-12-23",web:"https://www.cheb.cz/",tags:["kluziste"],
+      d:"Chebské vánoční trhy na historickém náměstí s kluzištěm."},
+    "Třebíč|Karlovo náměstí": {f:"2026-12-04",t:"2026-12-20",web:"https://www.trebic.cz/",tags:["unesco"]},
+    "Mikulov|Advent v Mikulově": {n:"Vánoce pod radnicí",f:"2026-12-12",t:"2026-12-13",hv:1,h:"jen 12.–13. 12.",web:"https://www.mikulov.cz/",
+      d:"Dvoudenní vánoční trh pod radnicí s výhledem na zámek."},
+    "Kutná Hora|Palackého náměstí": {f:"2026-12-05",t:"2026-12-19",days:["2026-12-05","2026-12-12","2026-12-19"],hv:1,h:"soboty 5., 12. a 19. 12.",web:"https://www.kutnahora.cz/",tags:["unesco"],
+      d:"Adventní trhy na Palackého náměstí, jen o třech adventních sobotách."},
+  };
+  const NEW = [
+    {n:"Náměstí Republiky",c:"Praha",cc:"CZ",lat:50.0877,lng:14.4283,f:"2026-11-25",t:"2026-12-24",h:"10:00–22:00",web:"https://prague.eu/cs/akce/vanocni-trhy-namesti-republiky/",
+      d:"Vánoční trhy u Obecního domu a Prašné brány, kousek od Staroměstského náměstí.",v:1,tags:["program"]},
+    {n:"Velké náměstí",c:"Hradec Králové",cc:"CZ",lat:50.2091,lng:15.8336,f:"2026-11-29",t:"2026-12-23",h:"dle programu města",web:"https://www.hradeckralove.org/",
+      d:"Hlavní hradecké vánoční trhy na Velkém náměstí s adventním programem a rozsvícením stromu.",v:1,tags:["strom","program"]},
+  ];
+  for (const m of window.MARKETS){
+    const o = U[m.c + "|" + m.n];
+    if (!o) continue;
+    Object.assign(m, o);
+    if (o.f){ m.v = 1; delete m.est; }
+  }
+  window.MARKETS.push(...NEW);
+  window.TAGS = {
+    kluziste:{i:"⛸️",l:"Kluziště"}, betlem:{i:"🐑",l:"Betlém"}, deti:{i:"🎠",l:"Pro děti"}, program:{i:"🎶",l:"Program"},
+    strom:{i:"🎄",l:"Velký strom"}, kolo:{i:"🎡",l:"Vyhlídkové kolo"}, unesco:{i:"🏛️",l:"Památka UNESCO"},
+  };
+})();

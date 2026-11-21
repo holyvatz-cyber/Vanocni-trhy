@@ -162,6 +162,10 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 .st.live::before{animation:blink 1.6s infinite}
 @keyframes blink{50%{opacity:.25}}
 .est{display:inline-block;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 7px;line-height:18px}
+.ok{display:inline-block;font-size:11px;font-weight:700;color:var(--open-ink);background:color-mix(in srgb,var(--pine) 13%,transparent);border-radius:999px;padding:0 7px;line-height:18px}
+.ti{font-size:13px;line-height:1}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:13px;font-weight:600}
 .empty{text-align:center;color:var(--muted);padding:28px 20px}
 .empty svg{width:64px;height:64px;margin-bottom:8px;opacity:.7}
 .note{color:var(--muted);font-size:12px;padding:14px 10px 0;text-align:center}
@@ -309,10 +313,10 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<script src="markets.js?v=5"></script>
+<script src="markets.js?v=6"></script>
 <script>
-const APP_VERSION = "v5";
-const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES;
+const APP_VERSION = "v6";
+const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES, TAGS = window.TAGS || {};
 
 /* ================= Helpers ================= */
 const $ = s => document.querySelector(s);
@@ -325,6 +329,7 @@ const DAY = 864e5;
 const now = () => new Date();
 const todayDate = () => { const d = now(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
 const parseD = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 const MONTHS = ["led","úno","bře","dub","kvě","čvn","čvc","srp","zář","říj","lis","pro"];
 const plural = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
 const isDesktop = () => innerWidth >= 900;
@@ -363,14 +368,23 @@ function status(m){
       long: d === 1 ? "Začíná už zítra" : `Začíná za ${d} ${plural(d,"den","dny","dní")}`};
   }
   if (today > t) return {k:"closed", label:"skončil", long:"Letos už skončil"};
+  if (m.days){
+    const iso = ymd(today);
+    if (!m.days.includes(iso)){
+      const nd = parseD(m.days.find(x => x > iso)), dd = Math.round((nd - today)/DAY);
+      return {k:"soon", date:nd, label: dd === 1 ? "zítra" : `za ${dd} ${plural(dd,"den","dny","dní")}`,
+        long:`Další trhový den ${nd.getDate()}. ${nd.getMonth()+1}.` + (dd === 1 ? " (zítra)" : ` (za ${dd} ${plural(dd,"den","dny","dní")})`)};
+    }
+  }
   const left = Math.round((t - today)/DAY);
-  const h = parseHours(m.h);
+  const h = m.hv ? parseHours(m.h) : null; // live open/closed only when hours come from a source
   if (!h) return {k:"open", label:"probíhá", long: left === 0 ? "Probíhá · dnes poslední den" : `Probíhá · ještě ${left} ${plural(left,"den","dny","dní")}`};
   const n = now(), mins = n.getHours()*60 + n.getMinutes();
   if (mins < h.o) return {k:"open", label:`otevírá v ${h.os}`, long:`Dnes otevírá v ${h.os}`};
   if (mins >= h.c) return {k:"open", label:"dnes zavřeno", long: left === 0 ? "Dnes byl poslední den" : `Dnes už zavřeno · zítra od ${h.os}`};
   return {k:"open", live:true, label:"otevřeno", long:`Otevřeno · do ${h.cs}`};
 }
+const badge = m => m.v ? '<span class="ok">ověřeno 2026</span>' : '<span class="est">odhad</span>';
 let toastT;
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2800); }
 
@@ -381,6 +395,7 @@ const ICON = {
   pin:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5a7 7 0 1 0-14 0C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   nav:'<svg class="i" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg>',
   share:'<svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+  web:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.5 5.4 3.5 8.5s-1 5.9-3.5 8.5c-2.5-2.6-3.5-5.4-3.5-8.5s1-5.9 3.5-8.5z"/></svg>',
   ext:'<svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
 };
 const PIN_SVG = '<svg viewBox="0 0 36 46" width="36" height="46" aria-hidden="true"><path class="b" d="M18 44.5S33 29 33 17.5a15 15 0 1 0-30 0C3 29 18 44.5 18 44.5z"/><path class="t" d="M18 9.5l5 6.3h-2.5l4.3 5.6h-3l3.7 5H10.5l3.7-5h-3l4.3-5.6H13z"/><rect class="t" x="16.6" y="26.4" width="2.8" height="2.6" rx=".6"/><circle class="s" cx="18" cy="8.6" r="2"/></svg>';
@@ -515,17 +530,19 @@ function renderDetail(m){
       <p>${esc(m.n)}</p>
     </div>
     <div class="countdown ${s.k}${s.live ? " live" : ""}"><span class="dot"></span>${s.long}</div>
+    ${m.tags && m.tags.length ? `<div class="tags">${m.tags.map(t => TAGS[t] ? `<span class="tag">${TAGS[t].i} ${TAGS[t].l}</span>` : "").join("")}</div>` : ""}
     <ul class="facts">
-      <li>${ICON.cal}<div><b>${fmtRange(m)}</b> ${m.est ? '<span class="est">odhad</span>' : ""}
-        <small>${m.est ? "Termín je odhad, ověřte ho u pořadatele" : "Orientační termín, ověřte ho u pořadatele"}</small></div></li>
-      <li>${ICON.clock}<div><b>${esc(m.h)}</b><small>Otevírací doba</small></div></li>
+      <li>${ICON.cal}<div><b>${fmtRange(m)}</b> ${badge(m)}
+        <small>${m.days ? "Jen ve dnech " + m.days.map(x => parseD(x).getDate() + ".").join(", ") + " " + (parseD(m.days[0]).getMonth()+1) + "." : m.v ? "Termín podle zdrojů pro sezónu 2026/27" : "Termín je odhad podle obvyklé sezóny, ověřte ho u pořadatele"}</small></div></li>
+      <li>${ICON.clock}<div><b>${esc(m.h)}</b><small>${m.hv ? "Otevírací doba" : "Obvyklá otevírací doba, letos se může lišit"}</small></div></li>
       ${state.me ? `<li>${ICON.pin}<div><b>${fmtKm(distKm(state.me, m))}</b><small>vzdušnou čarou od vás</small></div></li>` : ""}
     </ul>
     <p class="desc">${esc(m.d)}</p>
     <div class="actions">
       <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" target="_blank" rel="noopener">${ICON.nav} Navigovat</a>
       <button class="btn" id="btnShare">${ICON.share} Sdílet</button>
-      <a class="btn" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">${ICON.ext} Více info</a>
+      ${m.web ? `<a class="btn" href="${esc(m.web)}" target="_blank" rel="noopener">${ICON.web} Web pořadatele</a>`
+              : `<a class="btn" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">${ICON.ext} Více info</a>`}
     </div>
   </div>`;
   $("#btnBack").onclick = closeDetail;
@@ -681,7 +698,7 @@ function refreshList(){
   }
   ul.innerHTML = shown.map((m, i) => {
     const s = status(m), co = COUNTRIES[m.cc];
-    const d = s.k === "closed" ? parseD(m.t) : parseD(m.f);
+    const d = s.date || (s.k === "closed" ? parseD(m.t) : parseD(m.f));
     const box = s.k === "open" ? `<div class="datebox open"><b>●</b><span>teď</span></div>`
       : `<div class="datebox ${s.k}"><b>${d.getDate()}</b><span>${MONTHS[d.getMonth()]}</span></div>`;
     return `<li style="--i:${Math.min(i, 14)}"><button class="item" data-id="${m.id}">
@@ -689,11 +706,11 @@ function refreshList(){
       <span class="body">
         <span class="name">${esc(m.c)}</span>
         <span class="city">${co.flag} ${esc(m.n)}</span>
-        <span class="meta"><span class="st ${s.k}${s.live ? " live" : ""}">${s.label}</span>${m.est ? '<span class="est">odhad</span>' : ""}</span>
+        <span class="meta"><span class="st ${s.k}${s.live ? " live" : ""}">${s.label}</span>${badge(m)}${(m.tags||[]).slice(0,3).map(t => TAGS[t] ? `<span class="ti" title="${TAGS[t].l}">${TAGS[t].i}</span>` : "").join("")}</span>
       </span>
       ${state.me ? `<span class="dist">${fmtKm(m.km)}<small>od vás</small></span>` : ""}
     </button></li>`;
-  }).join("") + `<li class="note">Termíny pro sezónu 2026/27 jsou orientační. Před cestou je ověřte u pořadatele.</li>`;
+  }).join("") + `<li class="note">„Ověřeno 2026“ = termín podle zdrojů pro letošní sezónu. „Odhad“ = obvyklý termín, ověřte ho u pořadatele.</li>`;
 }
 function refreshAll(){ refreshMarkers(); refreshList(); }
 
@@ -767,6 +784,7 @@ function openFromHash(){
   return false;
 }
 const fromLink = openFromHash();
+addEventListener("hashchange", () => { if (!state.selected || location.hash !== "#trh=" + state.selected.slug) openFromHash(); });
 if (!store.get("vt_intro") && !fromLink){
   $("#intro").hidden = false;
   const done = () => { $("#intro").hidden = true; store.set("vt_intro", "1"); };
