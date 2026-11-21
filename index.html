@@ -4,185 +4,344 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Vánoční trhy</title>
-<meta name="description" content="Mapa vánočních trhů v Česku a sousedních zemích. Nakreslete prstem oblast a zobrazte trhy v ní.">
-<meta name="theme-color" content="#7a1f2b">
+<meta name="description" content="Mapa vánočních trhů v Česku a sousedních zemích. Najděte trhy kolem sebe nebo prstem obkreslete oblast na mapě.">
+<meta name="theme-color" content="#9b1c2e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
 <style>
+/* ================= Tokens ================= */
 :root{
-  --bg:#fbf8f3; --panel:#ffffff; --ink:#1f1a17; --muted:#6b625b; --line:#e7e0d6;
-  --accent:#7a1f2b; --accent-ink:#fff; --gold:#c8962e; --open:#2e7d4f; --soon:#c8962e; --closed:#9a928b;
-  --shadow:0 6px 24px rgba(30,20,10,.18);
+  --bg:#f4eee4; --panel:#fffcf7; --panel-2:#f6efe4; --ink:#1e1a16; --muted:#7a7066; --line:#ebe2d4;
+  --accent:#9b1c2e; --accent-ink:#fff; --pine:#1d5c45; --gold:#c9993a; --gold-soft:#f5e7c6; --closed:#9b948c;
+  --open-ink:#1d5c45; --soon-ink:#9b1c2e;
+  --snow:rgba(150,172,205,.9);
+  --tile-filter:saturate(.5) sepia(.14) brightness(1.03) contrast(.95);
+  --shadow-1:0 1px 2px rgba(40,25,10,.08),0 6px 18px rgba(40,25,10,.10);
+  --shadow-2:0 14px 44px rgba(40,25,10,.24);
+  --sheet-h:50vh;
+  --font-display:"Fraunces",Georgia,serif;
+  --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#15120f; --panel:#1f1b17; --ink:#f3ede6; --muted:#a9a097; --line:#352f29;
-    --accent:#c4454f; --accent-ink:#fff; --gold:#e0b04a; --open:#4fbf7d; --soon:#e0b04a; --closed:#7c746c;
-    --shadow:0 6px 24px rgba(0,0,0,.5);
+    --bg:#0d1220; --panel:#151b2b; --panel-2:#1c2337; --ink:#eef0f5; --muted:#99a2b4; --line:#262f44;
+    --accent:#c8404f; --accent-ink:#fff; --pine:#3fae80; --gold:#e8bd5c; --gold-soft:#3a3221; --closed:#6f7686;
+    --open-ink:#6fd3a6; --soon-ink:#ff8c98;
+    --snow:rgba(255,255,255,.9);
+    --tile-filter:invert(1) hue-rotate(195deg) brightness(.8) contrast(.9) saturate(.4);
+    --shadow-1:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.35);
+    --shadow-2:0 14px 44px rgba(0,0,0,.55);
   }
 }
 :root[data-theme="dark"]{
-  --bg:#15120f; --panel:#1f1b17; --ink:#f3ede6; --muted:#a9a097; --line:#352f29;
-  --accent:#c4454f; --accent-ink:#fff; --gold:#e0b04a; --open:#4fbf7d; --soon:#e0b04a; --closed:#7c746c;
-  --shadow:0 6px 24px rgba(0,0,0,.5);
+  --bg:#0d1220; --panel:#151b2b; --panel-2:#1c2337; --ink:#eef0f5; --muted:#99a2b4; --line:#262f44;
+  --accent:#c8404f; --accent-ink:#fff; --pine:#3fae80; --gold:#e8bd5c; --gold-soft:#3a3221; --closed:#6f7686;
+  --open-ink:#6fd3a6; --soon-ink:#ff8c98;
+  --snow:rgba(255,255,255,.9);
+  --tile-filter:invert(1) hue-rotate(195deg) brightness(.8) contrast(.9) saturate(.4);
+  --shadow-1:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.35);
+  --shadow-2:0 14px 44px rgba(0,0,0,.55);
 }
+
+/* ================= Base ================= */
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
-  font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
-#map{position:fixed;inset:0;z-index:0;background:var(--bg)}
-button{font:inherit;color:inherit;cursor:pointer}
 [hidden]{display:none !important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 var(--font-ui);overflow:hidden;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:10px}
+svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
 
-/* top bar */
-.topbar{position:fixed;top:calc(10px + env(safe-area-inset-top));left:12px;right:12px;z-index:500;
-  display:flex;gap:8px;align-items:center;pointer-events:none}
-.brand{pointer-events:auto;background:var(--accent);color:var(--accent-ink);padding:9px 14px;border-radius:999px;
-  font-weight:700;box-shadow:var(--shadow);white-space:nowrap}
-.spacer{flex:1}
-.tbtn{pointer-events:auto;border:0;background:var(--panel);color:var(--ink);height:42px;min-width:42px;padding:0 14px;
-  border-radius:999px;box-shadow:var(--shadow);font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.tbtn.active{background:var(--gold);color:#1f1a17}
-.tbtn.icon{padding:0;justify-content:center;font-size:18px}
-.hint{position:fixed;top:calc(62px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:500;
-  background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);
-  max-width:calc(100% - 32px);text-align:center}
-.toast{position:fixed;left:50%;bottom:calc(46vh + 12px);transform:translateX(-50%);z-index:700;background:var(--ink);color:var(--bg);
-  padding:8px 14px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center;
-  opacity:0;transition:opacity .25s;pointer-events:none}
-.toast.show{opacity:1}
-
-/* drawing mode */
+/* ================= Map ================= */
+#map{position:fixed;inset:0;z-index:0;background:var(--bg)}
+.tiles{filter:var(--tile-filter)}
+.leaflet-container{font-family:var(--font-ui)}
+.leaflet-bottom{bottom:var(--sheet-h);transition:bottom .35s cubic-bezier(.2,.8,.2,1)}
+.leaflet-control-attribution{font-size:10px;background:color-mix(in srgb,var(--panel) 80%,transparent) !important;color:var(--muted)}
+.leaflet-control-attribution a{color:var(--muted)}
+.leaflet-bar{border:0 !important;box-shadow:var(--shadow-1) !important;border-radius:12px !important;overflow:hidden}
+.leaflet-bar a{background:var(--panel);color:var(--ink);border-color:var(--line) !important;width:38px !important;height:38px !important;line-height:38px !important}
+.area-poly{stroke:var(--accent);stroke-width:3;fill:var(--gold);fill-opacity:.13}
+.draw-line{stroke:var(--gold);stroke-width:4;stroke-dasharray:7 7;fill:none}
 body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:crosshair !important}
 
-/* bottom sheet */
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:600;background:var(--panel);border-radius:18px 18px 0 0;
-  box-shadow:0 -6px 24px rgba(0,0,0,.18);display:flex;flex-direction:column;height:44vh;
-  transition:height .25s ease;padding-bottom:env(safe-area-inset-bottom)}
-.sheet[data-state="min"]{height:calc(64px + env(safe-area-inset-bottom))}
-.sheet[data-state="max"]{height:86vh}
-.sheet-handle{border:0;background:none;padding:8px 16px 6px;display:flex;flex-direction:column;align-items:stretch;gap:6px;text-align:left}
-.grab{align-self:center;width:42px;height:5px;border-radius:3px;background:var(--line)}
-.sheet-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.sheet-title strong{font-size:17px}
-.sheet-title span{color:var(--muted);font-size:13px}
-.filters{display:flex;gap:6px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none;flex-shrink:0}
-.filters::-webkit-scrollbar{display:none}
-.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 11px;font-size:13px;white-space:nowrap}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-#list{list-style:none;margin:0;padding:0 8px 16px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
-#list li{border-top:1px solid var(--line)}
-.item{display:flex;gap:12px;width:100%;border:0;background:none;text-align:left;padding:11px 8px;border-radius:10px}
-.item:hover{background:color-mix(in srgb,var(--line) 45%,transparent)}
-.item .ico{font-size:22px;line-height:1}
-.item .body{flex:1;min-width:0}
-.item .name{font-weight:650}
-.item .meta{color:var(--muted);font-size:13px}
-.item .dist{font-weight:700;color:var(--accent);white-space:nowrap;font-size:14px}
-.badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;color:#fff;vertical-align:1px}
-.b-open{background:var(--open)} .b-soon{background:var(--soon);color:#1f1a17} .b-closed{background:var(--closed)}
-.empty{color:var(--muted);padding:18px 12px;text-align:center}
-.note{color:var(--muted);font-size:12px;padding:10px 12px 0}
-
-@media (min-width:900px){
-  .sheet,.sheet[data-state]{top:0;bottom:0;right:auto;width:380px;height:auto;border-radius:0;
-    padding-top:calc(64px + env(safe-area-inset-top))}
-  .grab{display:none}
-  .topbar{left:12px}
-  .leaflet-left{left:380px}
-  .toast{bottom:24px;left:calc(50% + 190px)}
-  .hint{left:calc(50% + 190px)}
-}
-
-/* markers */
-.pin{width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;
-  background:var(--open);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
-.pin span{transform:rotate(45deg);font-size:16px}
-.pin.soon{background:var(--soon)} .pin.closed{background:var(--closed)}
-.pin.dim{opacity:.35}
+/* pins */
+.pin{width:36px;height:46px;transform-origin:50% 100%;transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.pin svg{display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,.3))}
+.pin .b{fill:var(--pine);stroke:#fff;stroke-width:2}
+.pin.soon .b{fill:var(--accent)}
+.pin.closed .b{fill:var(--closed)}
+.pin .t{fill:#fff}
+.pin .s{fill:var(--gold)}
+.pin.sel{transform:scale(1.35)}
+.pin.sel .b{stroke:var(--gold);stroke-width:2.5}
 .cluster{display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:14px;
-  border:3px solid rgba(255,255,255,.85);box-shadow:0 2px 8px rgba(0,0,0,.35)}
-.est{font-size:11px;color:var(--muted);font-weight:600;border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:4px}
-.me{width:18px;height:18px;border-radius:50%;background:#2a7de1;border:3px solid #fff;box-shadow:0 0 0 0 rgba(42,125,225,.6);
-  animation:pulse 2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(42,125,225,.55)}70%{box-shadow:0 0 0 16px rgba(42,125,225,0)}100%{box-shadow:0 0 0 0 rgba(42,125,225,0)}}
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 70%,transparent),0 4px 12px rgba(0,0,0,.3)}
+.me{width:20px;height:20px;border-radius:50%;background:#2f7ff0;border:3px solid #fff;animation:pulse 2.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,127,240,.55)}70%{box-shadow:0 0 0 18px rgba(47,127,240,0)}100%{box-shadow:0 0 0 0 rgba(47,127,240,0)}}
 
-/* popup */
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--ink)}
-.leaflet-popup-content{margin:14px 16px;font-size:14px;line-height:1.45;min-width:220px}
-.pop h3{margin:0 0 2px;font-size:16px}
-.pop .sub{color:var(--muted);font-size:13px;margin-bottom:8px}
-.pop dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:8px 0}
-.pop dt{color:var(--muted)} .pop dd{margin:0}
-.pop p{margin:8px 0}
-.pop .acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.pop .acts a{flex:1;text-align:center;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:600;font-size:13px;
-  background:var(--accent);color:var(--accent-ink)}
-.pop .acts a.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
-.leaflet-bar a{background:var(--panel);color:var(--ink);border-color:var(--line)}
-.leaflet-control-attribution{font-size:10px}
+/* snow */
+#snow{position:fixed;inset:0;z-index:400;pointer-events:none}
+
+/* ================= Top bar ================= */
+.topbar{position:fixed;z-index:700;top:calc(10px + env(safe-area-inset-top));left:10px;right:10px;display:flex;gap:8px;align-items:flex-start;pointer-events:none}
+.brand{pointer-events:auto;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:16px;
+  background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow-1);min-width:0}
+.brand-ico{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#b3263a,#6e1120);display:grid;place-items:center;flex:none}
+.brand strong{display:block;font:700 18px/1.1 var(--font-display);letter-spacing:-.01em}
+.brand span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spacer{flex:1}
+.tools{display:flex;gap:8px;pointer-events:auto}
+.fab{height:46px;min-width:46px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;
+  background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow-1);
+  font-weight:600;transition:transform .15s,background .2s}
+.fab:active{transform:scale(.94)}
+.fab[aria-pressed="true"]{background:var(--gold);color:#1e1a16}
+.fab.primary{background:var(--accent);color:var(--accent-ink)}
+.fab.primary[aria-pressed="true"]{background:var(--gold);color:#1e1a16}
+@media (max-width:420px){ .fab .lbl{display:none} }
+
+.drawbar{position:fixed;z-index:700;left:50%;top:calc(72px + env(safe-area-inset-top));transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;padding:10px 10px 10px 16px;border-radius:14px;background:var(--ink);color:var(--bg);
+  box-shadow:var(--shadow-2);width:max-content;max-width:calc(100% - 24px);animation:drop .3s cubic-bezier(.2,.8,.2,1)}
+.drawbar button{background:color-mix(in srgb,var(--bg) 18%,transparent);color:var(--bg);padding:6px 12px;border-radius:10px;font-weight:600;font-size:14px}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-10px)}}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--sheet-h) + 16px);transform:translate(-50%,10px);z-index:900;background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:var(--shadow-2);max-width:calc(100% - 32px);text-align:center;
+  opacity:0;transition:opacity .25s,transform .25s,bottom .35s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ================= Sheet ================= */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:600;height:var(--sheet-h);background:var(--panel);border-radius:24px 24px 0 0;
+  box-shadow:0 -8px 30px rgba(0,0,0,.16);display:flex;flex-direction:column;transition:height .35s cubic-bezier(.2,.8,.2,1);
+  padding-bottom:env(safe-area-inset-bottom);overflow:hidden}
+.handle{flex:none;display:flex;justify-content:center;padding:10px 0 4px;cursor:grab;touch-action:none}
+.handle span{width:44px;height:5px;border-radius:3px;background:var(--line)}
+.view{display:flex;flex-direction:column;min-height:0;flex:1;animation:viewIn .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}}
+
+.list-head{display:flex;align-items:flex-end;gap:10px;padding:4px 20px 10px;touch-action:none}
+.list-head h2{margin:0;font:700 22px/1.15 var(--font-display);letter-spacing:-.01em}
+.list-head p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.list-head .grow{flex:1;min-width:0}
+.area-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px 7px 12px;border-radius:999px;background:var(--gold-soft);color:var(--ink);font-size:13px;font-weight:600;white-space:nowrap}
+.area-chip svg.i{width:16px;height:16px}
+
+.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 20px 12px;scrollbar-width:none;flex:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap;color:var(--muted);transition:all .2s}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+
+#list{list-style:none;margin:0;padding:0 12px 20px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#list li{animation:itemIn .35s both cubic-bezier(.2,.8,.2,1);animation-delay:calc(var(--i,0) * 22ms)}
+@keyframes itemIn{from{opacity:0;transform:translateY(6px)}}
+.item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:10px 8px;border-radius:16px;transition:background .15s}
+.item:hover,.item:focus-visible{background:var(--panel-2)}
+.datebox{flex:none;width:50px;height:54px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--panel-2);border:1.5px solid var(--line);line-height:1}
+.datebox b{font:700 20px/1 var(--font-display)}
+.datebox span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.datebox.open{background:color-mix(in srgb,var(--pine) 14%,var(--panel));border-color:color-mix(in srgb,var(--pine) 40%,transparent);color:var(--open-ink)}
+.datebox.open span{color:var(--open-ink)}
+.datebox.closed{opacity:.55}
+.item .body{flex:1;min-width:0}
+.item .name{display:block;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .city{display:block;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .meta{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.item .dist{flex:none;text-align:right;font-weight:700;font-size:14px}
+.item .dist small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.st{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:12px}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st.open{color:var(--open-ink)} .st.soon{color:var(--soon-ink)} .st.closed{color:var(--muted)}
+.st.live::before{animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.est{display:inline-block;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 7px;line-height:18px}
+.empty{text-align:center;color:var(--muted);padding:28px 20px}
+.empty svg{width:64px;height:64px;margin-bottom:8px;opacity:.7}
+.note{color:var(--muted);font-size:12px;padding:14px 10px 0;text-align:center}
+
+/* ================= Detail ================= */
+.detail{overflow-y:auto;flex:1;padding:0 16px 24px;overscroll-behavior:contain}
+.hero{position:relative;border-radius:20px;padding:18px 18px 20px;color:#fff;overflow:hidden;min-height:150px;display:flex;flex-direction:column;justify-content:flex-end;
+  background:linear-gradient(140deg,#1f6b50 0%,#0f3a2b 100%)}
+.hero.soon{background:linear-gradient(140deg,#b3263a 0%,#5e0e1b 100%)}
+.hero.closed{background:linear-gradient(140deg,#6f7480 0%,#3d414b 100%)}
+.hero-art{position:absolute;right:-6px;bottom:0;width:62%;max-width:260px;height:auto;pointer-events:none}
+.hero .back{position:absolute;top:12px;left:12px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff}
+.hero-country{font-size:13px;font-weight:600;opacity:.9;margin-top:40px}
+.hero h2{margin:2px 0 0;font:700 30px/1.05 var(--font-display);letter-spacing:-.015em;position:relative}
+.hero p{margin:4px 0 0;font-size:15px;opacity:.92;position:relative;max-width:75%}
+.countdown{display:flex;align-items:center;gap:10px;margin:14px 2px 4px;font:600 18px/1.25 var(--font-display)}
+.countdown .dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex:none}
+.countdown.open{color:var(--open-ink)} .countdown.soon{color:var(--soon-ink)} .countdown.closed{color:var(--muted)}
+.countdown.live .dot{animation:blink 1.6s infinite}
+.facts{list-style:none;margin:10px 0 0;padding:0;border-top:1px solid var(--line)}
+.facts li{display:flex;gap:14px;align-items:flex-start;padding:12px 2px;border-bottom:1px solid var(--line)}
+.facts li > svg{margin-top:2px;color:var(--muted)}
+.facts b{font-weight:650}
+.facts small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+.desc{margin:14px 2px 0;line-height:1.55}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:14px;font-weight:650;font-size:15px;
+  text-decoration:none;border:1.5px solid var(--line);background:var(--panel);transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.btn.primary{grid-column:1 / -1;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);padding:14px}
+
+/* ================= Intro ================= */
+.intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;
+  background:color-mix(in srgb,#0d1220 55%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fade .3s}
+@keyframes fade{from{opacity:0}}
+.intro-card{width:100%;max-width:400px;background:var(--panel);border-radius:28px;overflow:hidden;box-shadow:var(--shadow-2);animation:pop .45s cubic-bezier(.2,.9,.25,1.2)}
+@keyframes pop{from{opacity:0;transform:translateY(20px) scale(.96)}}
+.intro-top{position:relative;height:150px;background:linear-gradient(160deg,#16213b 0%,#0b1020 100%);overflow:hidden}
+.intro-top svg{position:absolute;inset:0;width:100%;height:100%}
+.intro-body{padding:22px 24px 24px}
+.intro h1{margin:0;font:700 27px/1.1 var(--font-display);letter-spacing:-.015em}
+.intro .lead{margin:8px 0 16px;color:var(--muted)}
+.steps{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:12px}
+.steps li{display:flex;gap:12px;align-items:center;font-size:14px}
+.steps li span{flex:none;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--gold-soft);color:var(--ink);font-weight:700}
+.intro .btn{width:100%}
+.intro .btn + .btn{margin-top:8px;border-color:transparent;color:var(--muted)}
+
+/* ================= Desktop ================= */
+@media (min-width:900px){
+  :root{--sheet-h:0px}
+  .sheet,.sheet[data-state]{top:0;bottom:0;right:auto;width:400px;height:auto;border-radius:0;padding-top:calc(78px + env(safe-area-inset-top));box-shadow:4px 0 30px rgba(0,0,0,.12)}
+  .handle{display:none}
+  .topbar{left:12px}
+  .brand{background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding-left:6px}
+  .leaflet-left{left:400px}
+  .toast{left:calc(50% + 200px);bottom:28px}
+  .drawbar{left:calc(50% + 200px);top:20px}
+  .detail{padding:0 20px 24px}
+}
+@media (max-width:899px){ .leaflet-control-zoom{display:none} }
 </style>
 </head>
 <body>
 <div id="map" aria-label="Mapa vánočních trhů"></div>
+<canvas id="snow" aria-hidden="true"></canvas>
 
 <header class="topbar">
-  <div class="brand">🎄 Vánoční trhy</div>
+  <div class="brand">
+    <div class="brand-ico"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.3 2.7 3 .4-2.2 2 .6 2.9L12 9.1l-2.7 1.4.6-2.9-2.2-2 3-.4z" fill="#f3cf72"/><path d="M12 9.5l4.6 5.6h-2.3l3.6 4.4H6.1l3.6-4.4H7.4z" fill="#fff"/><rect x="10.8" y="19.5" width="2.4" height="2.2" rx=".5" fill="#fff"/></svg></div>
+    <div><strong>Vánoční trhy</strong><span id="brandSub">Česko a okolí</span></div>
+  </div>
   <div class="spacer"></div>
-  <button class="tbtn icon" id="btnLocate" title="Moje poloha" aria-label="Moje poloha">📍</button>
-  <button class="tbtn" id="btnDraw" aria-pressed="false">✏️ <span>Oblast</span></button>
-  <button class="tbtn icon" id="btnClear" title="Zrušit oblast" aria-label="Zrušit oblast" hidden>✕</button>
+  <div class="tools">
+    <button class="fab" id="btnSnow" aria-pressed="true" aria-label="Sněžení" title="Sněžení">
+      <svg class="i" viewBox="0 0 24 24"><path d="M12 2v20M4.9 6.5l14.2 11M19.1 6.5L4.9 17.5M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></svg>
+    </button>
+    <button class="fab" id="btnLocate" aria-label="Moje poloha" title="Moje poloha">
+      <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+    </button>
+    <button class="fab primary" id="btnDraw" aria-pressed="false" title="Nakreslit oblast">
+      <svg class="i" viewBox="0 0 24 24"><path d="M4 20c3-1 4.5-4 7-4s3 3 6 3 3-2 3-2"/><path d="M14.5 4.5l3 3L9 16l-4 1 1-4z"/></svg>
+      <span class="lbl">Oblast</span>
+    </button>
+  </div>
 </header>
-<div class="hint" id="hint" hidden>Táhněte prstem po mapě a obkreslete oblast</div>
-<div class="toast" id="toast" role="status"></div>
 
-<section class="sheet" id="sheet" data-state="mid">
-  <button class="sheet-handle" id="sheetHandle" aria-label="Rozbalit / sbalit seznam">
-    <span class="grab"></span>
-    <span class="sheet-title"><strong id="sheetTitle">Trhy</strong><span id="sheetSub"></span></span>
-  </button>
-  <div class="filters" id="filters"></div>
-  <ul id="list"></ul>
+<div class="drawbar" id="drawbar" hidden>
+  <span>Obkreslete prstem oblast na mapě</span>
+  <button id="btnDrawCancel">Zrušit</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<section class="sheet" id="sheet" data-state="mid" aria-label="Seznam trhů">
+  <div class="handle" id="handle" role="button" tabindex="0" aria-label="Rozbalit nebo sbalit panel"><span></span></div>
+  <div class="view" id="viewList">
+    <div class="list-head" id="listHead">
+      <div class="grow"><h2 id="listTitle">Trhy na mapě</h2><p id="listSub"></p></div>
+      <button class="area-chip" id="areaChip" hidden aria-label="Zrušit nakreslenou oblast">
+        Oblast <svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="filters" id="filters"></div>
+    <ul id="list"></ul>
+  </div>
+  <div class="view" id="viewDetail" hidden></div>
 </section>
+
+<div class="intro" id="intro" hidden role="dialog" aria-modal="true" aria-labelledby="introTitle">
+  <div class="intro-card">
+    <div class="intro-top">
+      <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <g fill="#fff">
+          <circle cx="40" cy="30" r="1.5" opacity=".8"/><circle cx="90" cy="60" r="1" opacity=".6"/><circle cx="150" cy="22" r="1.3" opacity=".9"/>
+          <circle cx="230" cy="40" r="1" opacity=".7"/><circle cx="300" cy="18" r="1.6" opacity=".9"/><circle cx="350" cy="55" r="1.1" opacity=".6"/>
+          <circle cx="370" cy="25" r="1" opacity=".7"/><circle cx="20" cy="70" r="1" opacity=".5"/><circle cx="160" cy="80" r="1" opacity=".5"/>
+        </g>
+        <path d="M200 20l3 6.2 6.8.8-5 4.6 1.4 6.7L200 35l-6.2 3.3 1.4-6.7-5-4.6 6.8-.8z" fill="#f3cf72"/>
+        <path d="M200 44l26 32h-12l20 25h-14l18 22h-76l18-22h-14l20-25h-12z" fill="#2c8a63"/>
+        <rect x="194" y="123" width="12" height="10" rx="2" fill="#6b4a2c"/>
+        <g fill="#f3cf72"><circle cx="190" cy="70" r="3"/><circle cx="212" cy="88" r="3"/><circle cx="186" cy="104" r="3"/><circle cx="216" cy="114" r="3"/></g>
+        <g fill="#c8404f"><circle cx="205" cy="62" r="2.6"/><circle cx="196" cy="94" r="2.6"/><circle cx="224" cy="104" r="2.6"/><circle cx="178" cy="116" r="2.6"/></g>
+        <path d="M40 150l22-36h-8l16-22h-6l16-22 16 22h-6l16 22h-8l22 36z" fill="#1b5a42" opacity=".7"/>
+        <path d="M280 150l20-32h-7l14-20h-5l14-20 14 20h-5l14 20h-7l20 32z" fill="#1b5a42" opacity=".7"/>
+        <path d="M0 140q100-18 200-6t200 0v16H0z" fill="#e9eef7"/>
+      </svg>
+    </div>
+    <div class="intro-body">
+      <h1 id="introTitle">Najděte svůj vánoční trh</h1>
+      <p class="lead" id="introLead">Vánoční trhy v Česku a sousedních zemích na jedné mapě.</p>
+      <ol class="steps">
+        <li><span>1</span>Povolte polohu a uvidíte trhy kolem sebe</li>
+        <li><span>2</span>Prstem obkreslete na mapě oblast, kam vyrazíte</li>
+        <li><span>3</span>Vyberte trh a nechte se navigovat</li>
+      </ol>
+      <button class="btn primary" id="introLocate">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>
+        Ukázat trhy kolem mě
+      </button>
+      <button class="btn" id="introSkip">Jen prozkoumat mapu</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<script src="markets.js?v=4"></script>
+<script src="markets.js?v=5"></script>
 <script>
-/* ---------- State ---------- */
-const state = {
-  me:null,                // L.LatLng
-  area:null,              // L.Polygon
-  areaPts:null,           // [L.LatLng]
-  countries:new Set(Object.keys(COUNTRIES)),
-  onlyOpen:false,
-};
+const APP_VERSION = "v5";
+const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES;
 
-/* ---------- Helpers ---------- */
+/* ================= Helpers ================= */
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const today = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); })();
-const parseD = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(_) { return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch(_) {} },
+};
 const DAY = 864e5;
+const now = () => new Date();
+const todayDate = () => { const d = now(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+const parseD = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const MONTHS = ["led","úno","bře","dub","kvě","čvn","čvc","srp","zář","říj","lis","pro"];
+const plural = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
+const isDesktop = () => innerWidth >= 900;
+const slug = m => (m.c + "-" + m.n).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-function status(m){
-  const f = parseD(m.f), t = parseD(m.t);
-  if (today < f){ const days = Math.round((f - today)/DAY); return {k:"soon", label: days === 1 ? "zítra" : `za ${days} ${days<5?"dny":"dní"}`}; }
-  if (today > t) return {k:"closed", label:"skončil"};
-  return {k:"open", label:"probíhá"};
-}
-function fmtRange(m){
-  const f = parseD(m.f), t = parseD(m.t);
-  const p = d => `${d.getDate()}. ${d.getMonth()+1}.`;
-  return f.getFullYear() === t.getFullYear() ? `${p(f)} – ${p(t)} ${t.getFullYear()}` : `${p(f)} ${f.getFullYear()} – ${p(t)} ${t.getFullYear()}`;
-}
 function distKm(a, b){
   const R = 6371, r = Math.PI/180;
   const dLat = (b.lat-a.lat)*r, dLng = (b.lng-a.lng)*r;
   const x = Math.sin(dLat/2)**2 + Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLng/2)**2;
   return 2*R*Math.asin(Math.sqrt(x));
 }
-const fmtKm = km => km < 10 ? `${km.toFixed(1).replace(".",",")} km` : `${Math.round(km)} km`;
+const fmtKm = km => km < 10 ? `${km.toFixed(1).replace(".", ",")} km` : `${Math.round(km)} km`;
+function fmtRange(m){
+  const f = parseD(m.f), t = parseD(m.t);
+  const p = d => `${d.getDate()}. ${d.getMonth()+1}.`;
+  return f.getFullYear() === t.getFullYear() ? `${p(f)} – ${p(t)} ${t.getFullYear()}` : `${p(f)} ${f.getFullYear()} – ${p(t)} ${t.getFullYear()}`;
+}
 function inPoly(lat, lng, poly){
   let inside = false;
   for (let i = 0, j = poly.length-1; i < poly.length; j = i++){
@@ -191,14 +350,56 @@ function inPoly(lat, lng, poly){
   }
   return inside;
 }
+function parseHours(h){
+  const r = /(\d{1,2}):(\d{2})\s*[–-]\s*(\d{1,2}):(\d{2})/.exec(h || "");
+  return r ? {o:+r[1]*60 + +r[2], c:+r[3]*60 + +r[4], os:`${r[1]}:${r[2]}`, cs:`${r[3]}:${r[4]}`} : null;
+}
+/* status of a market right now: k = open | soon | closed (by dates), plus labels */
+function status(m){
+  const today = todayDate(), f = parseD(m.f), t = parseD(m.t);
+  if (today < f){
+    const d = Math.round((f - today)/DAY);
+    return {k:"soon", label: d === 1 ? "zítra" : `za ${d} ${plural(d,"den","dny","dní")}`,
+      long: d === 1 ? "Začíná už zítra" : `Začíná za ${d} ${plural(d,"den","dny","dní")}`};
+  }
+  if (today > t) return {k:"closed", label:"skončil", long:"Letos už skončil"};
+  const left = Math.round((t - today)/DAY);
+  const h = parseHours(m.h);
+  if (!h) return {k:"open", label:"probíhá", long: left === 0 ? "Probíhá · dnes poslední den" : `Probíhá · ještě ${left} ${plural(left,"den","dny","dní")}`};
+  const n = now(), mins = n.getHours()*60 + n.getMinutes();
+  if (mins < h.o) return {k:"open", label:`otevírá v ${h.os}`, long:`Dnes otevírá v ${h.os}`};
+  if (mins >= h.c) return {k:"open", label:"dnes zavřeno", long: left === 0 ? "Dnes byl poslední den" : `Dnes už zavřeno · zítra od ${h.os}`};
+  return {k:"open", live:true, label:"otevřeno", long:`Otevřeno · do ${h.cs}`};
+}
 let toastT;
-function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove("show"), 2800); }
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2800); }
 
-/* ---------- Map ---------- */
+const ICON = {
+  back:'<svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  cal:'<svg class="i" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  clock:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  pin:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5a7 7 0 1 0-14 0C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  nav:'<svg class="i" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg>',
+  share:'<svg class="i" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+  ext:'<svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
+};
+const PIN_SVG = '<svg viewBox="0 0 36 46" width="36" height="46" aria-hidden="true"><path class="b" d="M18 44.5S33 29 33 17.5a15 15 0 1 0-30 0C3 29 18 44.5 18 44.5z"/><path class="t" d="M18 9.5l5 6.3h-2.5l4.3 5.6h-3l3.7 5H10.5l3.7-5h-3l4.3-5.6H13z"/><rect class="t" x="16.6" y="26.4" width="2.8" height="2.6" rx=".6"/><circle class="s" cx="18" cy="8.6" r="2"/></svg>';
+const HERO_ART = '<svg class="hero-art" viewBox="0 0 220 120" aria-hidden="true"><g fill="#fff"><circle cx="30" cy="20" r="1.4" opacity=".7"/><circle cx="80" cy="12" r="1" opacity=".6"/><circle cx="140" cy="26" r="1.5" opacity=".8"/><circle cx="200" cy="14" r="1.1" opacity=".7"/><circle cx="110" cy="48" r="1" opacity=".5"/></g><path d="M170 8l2.4 5 5.4.6-4 3.7 1.1 5.3-4.9-2.7-4.9 2.7 1.1-5.3-4-3.7 5.4-.6z" fill="#f3cf72"/><g fill="#fff" opacity=".16"><path d="M170 26l22 27h-10l17 21h-12l15 19h-64l15-19h-12l17-21h-10z"/><path d="M110 56l14 17h-6l11 14h-8l10 13H90l10-13h-8l11-14h-6z"/><path d="M212 60l10 13h-5l8 11h-6l7 10h-28l7-10h-6l8-11h-5z"/></g><path d="M0 112q60-10 120-4t100-2v14H0z" fill="#fff" opacity=".22"/></svg>';
+const EMPTY_ART = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6l12 15h-6l10 13h-7l9 12H14l9-12h-7l10-13h-6z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M28 46h8v8h-8z" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>';
+
+/* ================= State ================= */
+const state = {
+  me:null, area:null, areaPts:null, selected:null,
+  countries:new Set(Object.keys(COUNTRIES)), onlyOpen:false,
+};
+
+/* ================= Map ================= */
 const map = L.map("map", {zoomControl:false, minZoom:5, maxBounds:[[42,2],[58,28]], maxBoundsViscosity:.8});
 L.control.zoom({position:"bottomright"}).addTo(map);
-const APP_VERSION = "v4";
-// Map tile providers without API keys; if one fails to load, switch to the next.
+map.attributionControl.setPrefix(`Vánoční trhy ${APP_VERSION} · <a href="https://leafletjs.com">Leaflet</a>`);
+map.fitBounds([[48.55,12.1],[51.06,18.86]]);
+
+// keyless tile providers; switch to the next one if a provider fails to load
 const TILE_PROVIDERS = [
   {url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png", opt:{maxZoom:19,
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}},
@@ -207,91 +408,170 @@ const TILE_PROVIDERS = [
   {url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", opt:{maxZoom:17, subdomains:"abc",
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; OpenTopoMap'}},
 ];
-let tileIdx = 0, tileLayer = null;
+let tileLayer = null, tileIdx = 0;
 function useTiles(i){
   if (tileLayer) map.removeLayer(tileLayer);
   tileIdx = i;
-  const pr = TILE_PROVIDERS[i];
   let ok = 0, bad = 0;
-  tileLayer = L.tileLayer(pr.url, pr.opt);
+  const pr = TILE_PROVIDERS[i];
+  tileLayer = L.tileLayer(pr.url, {...pr.opt, className:"tiles"});
   tileLayer.on("tileload", () => { ok++; });
-  tileLayer.on("tileerror", () => {
-    bad++;
-    if (ok === 0 && bad >= 3 && tileIdx === i && i + 1 < TILE_PROVIDERS.length) useTiles(i + 1);
-  });
+  tileLayer.on("tileerror", () => { bad++; if (!ok && bad >= 3 && tileIdx === i && i + 1 < TILE_PROVIDERS.length) useTiles(i + 1); });
   tileLayer.addTo(map);
 }
-map.attributionControl.setPrefix(`Vánoční trhy ${APP_VERSION} · <a href="https://leafletjs.com">Leaflet</a>`);
-map.fitBounds([[48.55,12.1],[51.06,18.86]]); // Česko
 useTiles(0);
 
 const markerLayer = L.markerClusterGroup({
-  maxClusterRadius:45, disableClusteringAtZoom:12, showCoverageOnHover:false, spiderfyOnMaxZoom:true,
+  maxClusterRadius:48, disableClusteringAtZoom:12, showCoverageOnHover:false, spiderfyOnMaxZoom:true,
   iconCreateFunction: cl => {
-    const n = cl.getChildCount();
-    const size = n < 10 ? 36 : n < 50 ? 42 : 50;
-    return L.divIcon({className:"", iconSize:[size,size], html:`<div class="cluster" style="width:${size}px;height:${size}px">${n}</div>`});
+    const n = cl.getChildCount(), s = n < 10 ? 38 : n < 50 ? 44 : 52;
+    return L.divIcon({className:"", iconSize:[s,s], html:`<div class="cluster" style="width:${s}px;height:${s}px">${n}</div>`});
   }
 }).addTo(map);
-MARKETS.forEach((m, i) => {
-  m.id = i;
-  m.marker = L.marker([m.lat, m.lng], {icon: pinIcon(m, false), title:`${m.c} – ${m.n}`});
-  m.marker.bindPopup(() => popupHtml(m), {maxWidth:300, autoPanPadding:[20,80]});
-});
-function pinIcon(m, dim){
-  return L.divIcon({className:"", iconSize:[34,34], iconAnchor:[17,34], popupAnchor:[0,-32],
-    html:`<div class="pin ${status(m).k}${dim?" dim":""}"><span>🎄</span></div>`});
+
+function pinIcon(m){
+  const sel = state.selected === m;
+  return L.divIcon({className:"", iconSize:[36,46], iconAnchor:[18,45],
+    html:`<div class="pin ${status(m).k}${sel ? " sel" : ""}">${PIN_SVG}</div>`});
 }
-function popupHtml(m){
-  const s = status(m), co = COUNTRIES[m.cc];
-  const dist = state.me ? `<dt>Vzdálenost</dt><dd>${fmtKm(distKm(state.me, m))} vzdušnou čarou</dd>` : "";
-  const q = encodeURIComponent(`${m.n} ${m.c} vánoční trh 2026`);
-  return `<div class="pop">
-    <h3>${esc(m.n)}</h3>
-    <div class="sub">${co.flag} ${esc(m.c)}, ${co.name} · <span class="badge b-${s.k}">${s.label}</span></div>
-    <dl><dt>Termín</dt><dd>${fmtRange(m)}${m.est ? ' <span class="est">odhad</span>' : ""}</dd><dt>Otevřeno</dt><dd>${esc(m.h)}</dd>${dist}</dl>
-    <p>${esc(m.d)}</p>
-    <div class="acts">
-      <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" target="_blank" rel="noopener">🧭 Navigovat</a>
-      <a class="sec" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">🔎 Více info</a>
-    </div>
-  </div>`;
+MARKETS.forEach((m, i) => {
+  m.id = i; m.slug = slug(m);
+  m.marker = L.marker([m.lat, m.lng], {icon:pinIcon(m), title:`${m.c} – ${m.n}`, riseOnHover:true});
+  m.marker.on("click", () => selectMarket(m, {zoom:false}));
+});
+
+/* ================= Sheet ================= */
+const sheet = $("#sheet");
+function sheetPx(st = sheet.dataset.state){
+  if (isDesktop()) return 0;
+  return st === "min" ? 92 : st === "max" ? Math.round(innerHeight * .88) : Math.round(innerHeight * .5);
+}
+function setSheet(st){
+  sheet.dataset.state = st;
+  document.documentElement.style.setProperty("--sheet-h", isDesktop() ? "0px" : sheetPx(st) + "px");
+  sheet.style.height = isDesktop() ? "" : sheetPx(st) + "px";
+}
+addEventListener("resize", () => setSheet(sheet.dataset.state));
+(() => {
+  const order = ["min","mid","max"];
+  const step = dir => { const i = order.indexOf(sheet.dataset.state); setSheet(order[Math.max(0, Math.min(2, i + dir))]); };
+  $("#handle").addEventListener("click", () => { if (!isDesktop()) setSheet(sheet.dataset.state === "max" ? "min" : order[order.indexOf(sheet.dataset.state) + 1]); });
+  $("#handle").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); $("#handle").click(); } });
+  let y0 = null;
+  for (const el of [$("#handle"), $("#listHead")]){
+    el.addEventListener("touchstart", e => { y0 = e.touches[0].clientY; }, {passive:true});
+    el.addEventListener("touchend", e => {
+      if (y0 === null) return;
+      const dy = e.changedTouches[0].clientY - y0; y0 = null;
+      if (Math.abs(dy) > 28){ e.preventDefault(); step(dy < 0 ? 1 : -1); }
+    });
+  }
+})();
+
+/* center the map on a point while keeping it visible above the sheet / beside the side panel */
+function focusLatLng(ll, zoom){
+  const z = zoom ?? map.getZoom();
+  const off = isDesktop() ? L.point(-200, 0) : L.point(0, sheetPx()/2 - 30);
+  const pt = map.project(ll, z).add(off);
+  map.flyTo(map.unproject(pt, z), z, {duration:.8});
 }
 
-/* ---------- Location ---------- */
+/* ================= Selection / detail ================= */
+function selectMarket(m, {zoom = true, fly = true} = {}){
+  const prev = state.selected;
+  state.selected = m;
+  if (prev && prev !== m) prev.marker.setIcon(pinIcon(prev)).setZIndexOffset(0);
+  m.marker.setIcon(pinIcon(m)).setZIndexOffset(1000);
+  renderDetail(m);
+  $("#viewList").hidden = true; $("#viewDetail").hidden = false;
+  if (!isDesktop()) setSheet(sheet.dataset.state === "max" ? "max" : "mid");
+  try { history.replaceState(null, "", "#trh=" + m.slug); } catch(_) {}
+  if (fly){
+    const z = zoom ? Math.max(map.getZoom(), 13) : map.getZoom();
+    focusLatLng(L.latLng(m.lat, m.lng), z);
+    map.once("moveend", () => {
+      const p = markerLayer.getVisibleParent(m.marker);
+      if (state.selected === m && p && p !== m.marker) markerLayer.zoomToShowLayer(m.marker);
+    });
+  }
+}
+function closeDetail(){
+  const m = state.selected;
+  state.selected = null;
+  if (m) m.marker.setIcon(pinIcon(m)).setZIndexOffset(0);
+  $("#viewDetail").hidden = true; $("#viewList").hidden = false;
+  try { history.replaceState(null, "", location.pathname + location.search); } catch(_) {}
+}
+function renderDetail(m){
+  const s = status(m), co = COUNTRIES[m.cc];
+  const q = encodeURIComponent(`${m.n} ${m.c} vánoční trh 2026`);
+  $("#viewDetail").innerHTML = `
+  <div class="detail">
+    <div class="hero ${s.k}">
+      ${HERO_ART}
+      <button class="back" id="btnBack" aria-label="Zpět na seznam">${ICON.back}</button>
+      <div class="hero-country">${co.flag} ${esc(co.name)}</div>
+      <h2>${esc(m.c)}</h2>
+      <p>${esc(m.n)}</p>
+    </div>
+    <div class="countdown ${s.k}${s.live ? " live" : ""}"><span class="dot"></span>${s.long}</div>
+    <ul class="facts">
+      <li>${ICON.cal}<div><b>${fmtRange(m)}</b> ${m.est ? '<span class="est">odhad</span>' : ""}
+        <small>${m.est ? "Termín je odhad, ověřte ho u pořadatele" : "Orientační termín, ověřte ho u pořadatele"}</small></div></li>
+      <li>${ICON.clock}<div><b>${esc(m.h)}</b><small>Otevírací doba</small></div></li>
+      ${state.me ? `<li>${ICON.pin}<div><b>${fmtKm(distKm(state.me, m))}</b><small>vzdušnou čarou od vás</small></div></li>` : ""}
+    </ul>
+    <p class="desc">${esc(m.d)}</p>
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}" target="_blank" rel="noopener">${ICON.nav} Navigovat</a>
+      <button class="btn" id="btnShare">${ICON.share} Sdílet</button>
+      <a class="btn" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">${ICON.ext} Více info</a>
+    </div>
+  </div>`;
+  $("#btnBack").onclick = closeDetail;
+  $("#btnShare").onclick = () => shareMarket(m);
+}
+async function shareMarket(m){
+  const url = location.origin + location.pathname + "#trh=" + m.slug;
+  const text = `${m.c}: ${m.n} (${fmtRange(m)})`;
+  if (navigator.share){ try { await navigator.share({title:"Vánoční trh – " + m.c, text, url}); } catch(_) {} return; }
+  try { await navigator.clipboard.writeText(url); toast("Odkaz zkopírován"); } catch(_) { toast(url); }
+}
+
+/* ================= Location ================= */
 let meMarker = null, firstFix = true;
 function locate(fly){
   if (!navigator.geolocation){ toast("Prohlížeč nepodporuje určení polohy"); return; }
   navigator.geolocation.getCurrentPosition(pos => {
     state.me = L.latLng(pos.coords.latitude, pos.coords.longitude);
+    store.set("vt_geo", "1");
     if (!meMarker){
-      meMarker = L.marker(state.me, {icon:L.divIcon({className:"", html:'<div class="me"></div>', iconSize:[18,18], iconAnchor:[9,9]}), zIndexOffset:1000, interactive:false}).addTo(map);
+      meMarker = L.marker(state.me, {icon:L.divIcon({className:"", html:'<div class="me"></div>', iconSize:[20,20], iconAnchor:[10,10]}), zIndexOffset:2000, interactive:false}).addTo(map);
     } else meMarker.setLatLng(state.me);
-    if (fly || firstFix) map.flyTo(state.me, state.area ? map.getZoom() : 9, {duration:.8});
+    if ((fly || firstFix) && !state.selected) focusLatLng(state.me, state.area ? map.getZoom() : 10);
     firstFix = false;
-    refresh();
+    refreshList();
+    if (state.selected) renderDetail(state.selected);
   }, err => {
     if (fly) toast(err.code === 1 ? "Přístup k poloze je zakázaný. Povolte ho v nastavení prohlížeče." : "Polohu se nepodařilo zjistit");
-  }, {enableHighAccuracy:false, timeout:10000, maximumAge:300000});
+  }, {enableHighAccuracy:false, timeout:12000, maximumAge:300000});
 }
 $("#btnLocate").onclick = () => locate(true);
 
-/* ---------- Freehand drawing ---------- */
+/* ================= Freehand drawing ================= */
 const container = map.getContainer();
 const INTERACTIONS = ["dragging","touchZoom","doubleClickZoom","boxZoom","scrollWheelZoom","keyboard"];
-let drawMode = false, drawPointer = null, pts = [], tempLine = null, lastPx = null;
+let drawMode = false, drawPointer = null, pts = [], tempLine = null, lastPx = null, sheetBeforeDraw = "mid";
 
 function setDrawMode(on){
   drawMode = on;
   document.body.classList.toggle("drawing", on);
   INTERACTIONS.forEach(k => map[k] && (on ? map[k].disable() : map[k].enable()));
-  $("#btnDraw").classList.toggle("active", on);
   $("#btnDraw").setAttribute("aria-pressed", on);
-  $("#btnDraw span").textContent = on ? "Kreslete…" : "Oblast";
-  $("#hint").hidden = !on;
-  if (on){ map.closePopup(); if (innerWidth < 900) setSheet("min"); }
+  $("#drawbar").hidden = !on;
+  if (on && !isDesktop()){ sheetBeforeDraw = sheet.dataset.state; setSheet("min"); }
 }
-function eventLatLng(e){
+function eventPoint(e){
   const r = container.getBoundingClientRect();
   const p = L.point(e.clientX - r.left, e.clientY - r.top);
   return {ll: map.containerPointToLatLng(p), px: p};
@@ -301,14 +581,14 @@ container.addEventListener("pointerdown", e => {
   e.preventDefault(); e.stopPropagation();
   drawPointer = e.pointerId;
   try { container.setPointerCapture(e.pointerId); } catch(_) {}
-  const {ll, px} = eventLatLng(e);
+  const {ll, px} = eventPoint(e);
   pts = [ll]; lastPx = px;
-  tempLine = L.polyline(pts, {color:"#c8962e", weight:4, dashArray:"6 6", interactive:false}).addTo(map);
+  tempLine = L.polyline(pts, {className:"draw-line", interactive:false}).addTo(map);
 }, true);
 container.addEventListener("pointermove", e => {
   if (!drawMode || e.pointerId !== drawPointer) return;
   e.preventDefault(); e.stopPropagation();
-  const {ll, px} = eventLatLng(e);
+  const {ll, px} = eventPoint(e);
   if (px.distanceTo(lastPx) < 4) return;
   pts.push(ll); lastPx = px; tempLine.setLatLngs(pts);
 }, true);
@@ -319,141 +599,184 @@ function finishDraw(e){
   if (tempLine){ map.removeLayer(tempLine); tempLine = null; }
   const b = L.latLngBounds(pts);
   const sizePx = map.latLngToContainerPoint(b.getNorthEast()).distanceTo(map.latLngToContainerPoint(b.getSouthWest()));
-  if (pts.length < 3 || sizePx < 30){ toast("Oblast je příliš malá. Zkuste ji obkreslit větší."); return; }
-  setArea(pts);
+  if (pts.length < 3 || sizePx < 30){ toast("Oblast je příliš malá, zkuste ji obkreslit větší"); return; }
   setDrawMode(false);
+  setArea(pts);
 }
 container.addEventListener("pointerup", finishDraw, true);
 container.addEventListener("pointercancel", finishDraw, true);
-// swallow clicks generated by drawing so markers/map don't react
 container.addEventListener("click", e => { if (document.body.classList.contains("drawing")) e.stopPropagation(); }, true);
+$("#btnDraw").onclick = () => {
+  if (drawMode){ setDrawMode(false); if (!isDesktop()) setSheet(sheetBeforeDraw); return; }
+  if (state.selected) closeDetail();
+  setDrawMode(true);
+};
+$("#btnDrawCancel").onclick = () => { setDrawMode(false); if (!isDesktop()) setSheet(sheetBeforeDraw); };
 
 function setArea(points){
   clearArea(true);
   state.areaPts = points;
-  state.area = L.polygon(points, {color:"#7a1f2b", weight:3, fillColor:"#c8962e", fillOpacity:.15, interactive:false}).addTo(map);
-  $("#btnClear").hidden = false;
-  const padBottom = innerWidth < 900 ? innerHeight*0.46 : 40;
-  const padLeft = innerWidth >= 900 ? 400 : 20;
-  map.fitBounds(state.area.getBounds(), {paddingTopLeft:[padLeft,80], paddingBottomRight:[20,padBottom]});
-  refresh();
+  state.area = L.polygon(points, {className:"area-poly", interactive:false}).addTo(map);
+  if (state.selected) closeDetail();
+  refreshAll();
   setSheet("mid");
-  const n = filtered().filter(m => m.inArea).length;
-  toast(n ? `V oblasti: ${n} ${n===1?"trh":n<5?"trhy":"trhů"}` : "V oblasti nejsou žádné trhy");
+  const pad = isDesktop() ? {paddingTopLeft:[440,90], paddingBottomRight:[40,40]} : {paddingTopLeft:[20,90], paddingBottomRight:[20, sheetPx("mid") + 20]};
+  map.fitBounds(state.area.getBounds(), pad);
+  const n = visibleMarkets().filter(m => m.inArea).length;
+  toast(n ? `V oblasti ${plural(n,"je","jsou","je")} ${n} ${plural(n,"trh","trhy","trhů")}` : "V oblasti nejsou žádné trhy");
 }
 function clearArea(silent){
   if (state.area) map.removeLayer(state.area);
   state.area = null; state.areaPts = null;
-  $("#btnClear").hidden = true;
-  if (!silent) refresh();
+  if (!silent) refreshAll();
 }
-$("#btnDraw").onclick = () => setDrawMode(!drawMode);
-$("#btnClear").onclick = () => clearArea(false);
+$("#areaChip").onclick = () => clearArea(false);
 
-/* ---------- Filters ---------- */
+/* ================= Filters ================= */
 function renderFilters(){
   const f = $("#filters");
   f.innerHTML = "";
-  const open = document.createElement("button");
-  open.className = "chip"; open.textContent = "✨ Otevřeno dnes";
-  open.setAttribute("aria-pressed", state.onlyOpen);
-  open.onclick = () => { state.onlyOpen = !state.onlyOpen; renderFilters(); refresh(); };
-  f.appendChild(open);
-  Object.entries(COUNTRIES).forEach(([cc, co]) => {
+  const mk = (label, pressed, fn) => {
     const b = document.createElement("button");
-    b.className = "chip"; b.textContent = `${co.flag} ${co.name}`;
-    b.setAttribute("aria-pressed", state.countries.has(cc));
-    b.onclick = () => { state.countries.has(cc) ? state.countries.delete(cc) : state.countries.add(cc); renderFilters(); refresh(); };
+    b.className = "chip"; b.textContent = label; b.setAttribute("aria-pressed", pressed);
+    b.onclick = () => { fn(); renderFilters(); refreshAll(); };
     f.appendChild(b);
-  });
+  };
+  mk("Probíhá dnes", state.onlyOpen, () => state.onlyOpen = !state.onlyOpen);
+  Object.entries(COUNTRIES).forEach(([cc, co]) =>
+    mk(`${co.flag} ${co.name}`, state.countries.has(cc), () => state.countries.has(cc) ? state.countries.delete(cc) : state.countries.add(cc)));
 }
-function filtered(){
+function visibleMarkets(){
   return MARKETS.filter(m => state.countries.has(m.cc) && (!state.onlyOpen || status(m).k === "open"))
     .map(m => { m.inArea = state.areaPts ? inPoly(m.lat, m.lng, state.areaPts) : true; return m; });
 }
 
-/* ---------- List & markers ---------- */
-function refresh(){
-  const list = filtered();
+/* ================= Rendering ================= */
+function refreshMarkers(){
+  const list = visibleMarkets().filter(m => m.inArea);
   markerLayer.clearLayers();
-  list.forEach(m => m.marker.setIcon(pinIcon(m, !m.inArea)));
-  markerLayer.addLayers(list.filter(m => m.inArea).map(m => m.marker));
-
-  let shown, title, sub;
-  if (state.areaPts){
-    shown = list.filter(m => m.inArea);
-    title = "Trhy v oblasti";
-  } else {
+  list.forEach(m => m.marker.setIcon(pinIcon(m)));
+  markerLayer.addLayers(list.map(m => m.marker));
+}
+function refreshList(){
+  const list = visibleMarkets();
+  let shown, title;
+  if (state.areaPts){ shown = list.filter(m => m.inArea); title = "V nakreslené oblasti"; }
+  else {
     const b = map.getBounds();
     shown = list.filter(m => b.contains([m.lat, m.lng]));
-    title = "Trhy na mapě";
+    title = state.me ? "Trhy kolem vás" : "Trhy na mapě";
   }
-  if (state.me){
-    shown.forEach(m => m.km = distKm(state.me, m));
-    shown.sort((a, b) => a.km - b.km);
-    sub = `${shown.length} · podle vzdálenosti`;
-  } else {
-    shown.sort((a, b) => a.c.localeCompare(b.c, "cs") || a.n.localeCompare(b.n, "cs"));
-    sub = `${shown.length} · podle abecedy`;
-  }
-  $("#sheetTitle").textContent = title;
-  $("#sheetSub").textContent = sub;
+  if (state.me){ shown.forEach(m => m.km = distKm(state.me, m)); shown.sort((a, b) => a.km - b.km); }
+  else shown.sort((a, b) => a.c.localeCompare(b.c, "cs") || a.n.localeCompare(b.n, "cs"));
+  const open = shown.filter(m => status(m).k === "open").length;
+  $("#listTitle").textContent = title;
+  $("#listSub").textContent = `${shown.length} ${plural(shown.length,"trh","trhy","trhů")}` + (open ? ` · ${open} právě ${plural(open,"probíhá","probíhají","probíhá")}` : "") + (state.me ? " · podle vzdálenosti" : "");
+  $("#areaChip").hidden = !state.areaPts;
 
   const ul = $("#list");
   if (!shown.length){
-    ul.innerHTML = `<li class="empty">${state.areaPts ? "V nakreslené oblasti nejsou žádné trhy.<br>Zkuste ji zvětšit nebo upravit filtry." : "Tady na mapě nejsou žádné trhy. Posuňte mapu, nebo nakreslete oblast ✏️"}</li>`;
-  } else {
-    ul.innerHTML = shown.map(m => {
-      const s = status(m), co = COUNTRIES[m.cc];
-      return `<li><button class="item" data-id="${m.id}">
-        <span class="ico">${co.flag}</span>
-        <span class="body"><span class="name">${esc(m.c)}: ${esc(m.n)}</span><br>
-          <span class="meta"><span class="badge b-${s.k}">${s.label}</span> ${fmtRange(m)}${m.est ? ' <span class="est">odhad</span>' : ` · ${esc(m.h)}`}</span></span>
-        ${state.me ? `<span class="dist">${fmtKm(m.km)}</span>` : ""}
-      </button></li>`;
-    }).join("");
+    ul.innerHTML = `<li class="empty">${EMPTY_ART}<div>${state.areaPts ? "V nakreslené oblasti nejsou žádné trhy.<br>Zkuste ji zvětšit nebo upravit filtry." : "Tady na mapě nejsou žádné trhy.<br>Posuňte mapu, nebo nakreslete oblast."}</div></li>`;
+    return;
   }
-  ul.insertAdjacentHTML("beforeend", `<li class="note" style="border:0">Termíny pro sezónu 2026/27 jsou orientační. Před cestou je ověřte u pořadatele (tlačítko „Více info“).</li>`);
+  ul.innerHTML = shown.map((m, i) => {
+    const s = status(m), co = COUNTRIES[m.cc];
+    const d = s.k === "closed" ? parseD(m.t) : parseD(m.f);
+    const box = s.k === "open" ? `<div class="datebox open"><b>●</b><span>teď</span></div>`
+      : `<div class="datebox ${s.k}"><b>${d.getDate()}</b><span>${MONTHS[d.getMonth()]}</span></div>`;
+    return `<li style="--i:${Math.min(i, 14)}"><button class="item" data-id="${m.id}">
+      ${box}
+      <span class="body">
+        <span class="name">${esc(m.c)}</span>
+        <span class="city">${co.flag} ${esc(m.n)}</span>
+        <span class="meta"><span class="st ${s.k}${s.live ? " live" : ""}">${s.label}</span>${m.est ? '<span class="est">odhad</span>' : ""}</span>
+      </span>
+      ${state.me ? `<span class="dist">${fmtKm(m.km)}<small>od vás</small></span>` : ""}
+    </button></li>`;
+  }).join("") + `<li class="note">Termíny pro sezónu 2026/27 jsou orientační. Před cestou je ověřte u pořadatele.</li>`;
 }
+function refreshAll(){ refreshMarkers(); refreshList(); }
+
 $("#list").addEventListener("click", e => {
   const btn = e.target.closest(".item"); if (!btn) return;
-  const m = MARKETS[+btn.dataset.id];
-  if (innerWidth < 900) setSheet("min");
-  const target = map.getZoom() < 12 ? 13 : map.getZoom();
-  // offset so the marker sits above the bottom sheet on phones
-  const off = innerWidth < 900 ? innerHeight*0.12 : 0;
-  const pt = map.project([m.lat, m.lng], target).add([innerWidth >= 900 ? -190 : 0, off]);
-  map.flyTo(map.unproject(pt, target), target, {duration:.7});
-  map.once("moveend", () => markerLayer.zoomToShowLayer(m.marker, () => m.marker.openPopup()));
+  selectMarket(MARKETS[+btn.dataset.id]);
 });
-map.on("moveend", () => { if (!state.areaPts) refresh(); });
+map.on("moveend", () => { if (!state.areaPts) refreshList(); });
 
-/* ---------- Bottom sheet ---------- */
-function setSheet(s){ $("#sheet").dataset.state = s; }
-$("#sheetHandle").onclick = () => {
-  if (innerWidth >= 900) return;
-  const order = {min:"mid", mid:"max", max:"min"};
-  setSheet(order[$("#sheet").dataset.state]);
-};
-// simple swipe on the handle
+/* ================= Snow ================= */
+const snow = (() => {
+  const cvs = $("#snow"), ctx = cvs.getContext("2d");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let flakes = [], raf = 0, on = false, color = "#fff", w = 0, h = 0;
+  function resize(){
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    w = innerWidth; h = innerHeight;
+    cvs.width = w * dpr; cvs.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(Math.min(110, w * h / 9000));
+    flakes = Array.from({length:n}, () => ({x:Math.random()*w, y:Math.random()*h, r:.8 + Math.random()*2.4, v:.3 + Math.random()*.9, p:Math.random()*6.28, a:.4 + Math.random()*.6}));
+    color = getComputedStyle(document.documentElement).getPropertyValue("--snow").trim() || "#fff";
+  }
+  function frame(){
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = color;
+    for (const f of flakes){
+      f.y += f.v; f.p += .012; f.x += Math.sin(f.p) * .35;
+      if (f.y > h + 4){ f.y = -4; f.x = Math.random() * w; }
+      ctx.globalAlpha = f.a;
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  function set(v){
+    on = v; $("#btnSnow").setAttribute("aria-pressed", v); store.set("vt_snow", v ? "1" : "0");
+    cancelAnimationFrame(raf);
+    if (v){ resize(); frame(); } else ctx.clearRect(0, 0, w, h);
+  }
+  addEventListener("resize", () => { if (on) resize(); });
+  document.addEventListener("visibilitychange", () => { if (!on) return; cancelAnimationFrame(raf); if (!document.hidden) frame(); });
+  const saved = store.get("vt_snow");
+  return {init(){ set(saved === null ? !reduced : saved === "1"); }, toggle(){ set(!on); }};
+})();
+$("#btnSnow").onclick = () => snow.toggle();
+
+/* ================= Brand subtitle ================= */
 (() => {
-  let y0 = null;
-  const h = $("#sheetHandle");
-  h.addEventListener("touchstart", e => { y0 = e.touches[0].clientY; }, {passive:true});
-  h.addEventListener("touchend", e => {
-    if (y0 === null) return;
-    const dy = e.changedTouches[0].clientY - y0; y0 = null;
-    if (Math.abs(dy) < 30) return;
-    e.preventDefault();
-    const st = $("#sheet").dataset.state;
-    setSheet(dy < 0 ? (st === "min" ? "mid" : "max") : (st === "max" ? "mid" : "min"));
-  });
+  const t = todayDate(), xmas = new Date(t.getFullYear(), 11, 24);
+  const d = Math.round((xmas - t)/DAY);
+  const set = () => {
+    const narrow = innerWidth < 420;
+    const x = d > 0 ? (narrow ? `Vánoce za ${d} ${plural(d,"den","dny","dní")}` : `Štědrý den za ${d} ${plural(d,"den","dny","dní")}`) : d === 0 ? "Veselé Vánoce!" : "";
+    $("#brandSub").textContent = narrow && x ? `🎄 ${x}` : `${MARKETS.length} trhů` + (x ? ` · ${x}` : "");
+  };
+  set(); addEventListener("resize", set);
+  $("#introLead").textContent = `Přes ${Math.floor(MARKETS.length/10)*10} vánočních trhů v Česku a sousedních zemích na jedné mapě.`;
 })();
 
-/* ---------- Init ---------- */
+/* ================= Init ================= */
+setSheet("mid");
 renderFilters();
-refresh();
-locate(false);
+refreshAll();
+snow.init();
+
+function openFromHash(){
+  const mt = /^#trh=(.+)$/.exec(location.hash);
+  if (!mt) return false;
+  const m = MARKETS.find(x => x.slug === decodeURIComponent(mt[1]));
+  if (m){ map.setView([m.lat, m.lng], 13, {animate:false}); selectMarket(m); return true; }
+  return false;
+}
+const fromLink = openFromHash();
+if (!store.get("vt_intro") && !fromLink){
+  $("#intro").hidden = false;
+  const done = () => { $("#intro").hidden = true; store.set("vt_intro", "1"); };
+  $("#introLocate").onclick = () => { done(); locate(true); };
+  $("#introSkip").onclick = done;
+} else if (store.get("vt_geo")){
+  // permission was granted before: locate quietly
+  if (navigator.permissions?.query) navigator.permissions.query({name:"geolocation"}).then(p => { if (p.state === "granted") locate(!fromLink); }).catch(() => {});
+  else locate(!fromLink);
+}
 </script>
 </body>
 </html>
