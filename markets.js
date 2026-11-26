@@ -475,3 +475,51 @@ window.COUNTRIES = {CZ:{flag:"🇨🇿",name:"Česko"},DE:{flag:"🇩🇪",name:
     Object.assign(m, o); m.v = 1; delete m.est;
   }
 })();
+
+/* ---------- Verified 2026/27 data: update 26. 11. 2026 (kudyznudy.cz event calendar 2026 + city sources) ---------- */
+(() => {
+  const K = "https://www.kudyznudy.cz/";
+  const U = {
+    "Nový Jičín|Masarykovo náměstí": {f:"2026-11-28",t:"2026-12-23",n:"Adventní jarmark – Masarykovo náměstí",web:K+"akce/adventni-jarmark-v-novem-jicine",tags:["strom"]},
+    "Karviná|Masarykovo náměstí": {f:"2026-11-29",t:"2026-12-23",n:"Vánoční jarmark – Masarykovo nám. (Fryštát)",web:K+"akce/vanocni-koledovani-v-karvine-nazivo",tags:["strom","program"],
+      d:"Vánoční jarmark v historickém Fryštátu. Začíná 29. 11. slavnostním rozsvícením vánočního stromu."},
+    "Vysoké Mýto|Náměstí Přemysla Otakara II.": {f:"2026-11-28",t:"2026-11-28",n:"Adventní kujebácký jarmark",h:"jen sobota 28. 11.",hv:1,web:K+"akce/adventni-jarmark-ve-vysokem-myte",
+      d:"Jednodenní adventní jarmark na jednom z největších čtvercových náměstí v Česku."},
+    "Mnichovo Hradiště|Masarykovo náměstí": {f:"2026-12-12",t:"2026-12-12",n:"Vánoční jarmark na náměstí",h:"jen sobota 12. 12.",hv:1,web:K+"akce/valdstejnske-vanoce"},
+    "Slaný|Masarykovo náměstí": {f:"2026-12-11",t:"2026-12-18",days:["2026-12-11","2026-12-18"],n:"Adventní jarmark",h:"pátky 11. a 18. 12.",hv:1,
+      d:"Adventní jarmark na Masarykově náměstí, jen ve dva prosincové pátky."},
+    "Kadaň|Mírové náměstí": {f:"2026-11-28",t:"2026-11-28",n:"Advent v Kadani – vánoční trhy",h:"sobota 28. 11., 10:00–18:00",hv:1,web:K+"akce/advent-2",tags:["strom","program"],
+      d:"Jednodenní vánoční trhy s vystoupením sborů a programem pro děti, večer rozsvícení stromu a ohňostroj."},
+    "Most|1. náměstí": {f:"2026-11-27",t:"2026-12-31",h:"10:00–18:00",hv:1,web:"https://www.mesto-most.cz/"},
+    "Teplice|Zámecké náměstí": {f:"2026-11-21",t:"2026-12-23",n:"Teplické Vánoce",web:"https://www.teplice.cz/",tags:["program"],
+      d:"Teplické Vánoce v centru lázeňského města. Rozsvícení stromu a slet andělů v Galerii Teplice 21. 11. Přesné místo stánků ověřte na webu města."},
+    "Beroun|Husovo náměstí": {f:"2026-11-29",t:"2026-12-20",n:"Berounský advent",web:"https://www.mesto-beroun.cz/",tags:["strom","program"],
+      d:"Dřevěné stánky s vánočním zbožím a občerstvením a řada kulturních akcí na Husově náměstí."},
+    "Chrudim|Resselovo náměstí": {f:"2026-11-29",t:"2026-12-23",n:"Adventní trhy – Resselovo náměstí",web:"https://www.chrudim.eu/",tags:["strom"]},
+    "Jičín|Valdštejnovo náměstí": {f:"2026-11-28",t:"2026-11-29",n:"Valdštejnské adventní trhy",h:"so 28. 11. od 9:00 – ne 29. 11. do 14:30",hv:1,web:K+"akce/valdstejnske-adventni-trhy-v-jicine",tags:["strom"],
+      d:"Tradiční dvoudenní jarmark s řemeslnými a regionálními výrobky a programem k rozsvícení stromu."},
+    "Turnov|Náměstí Českého ráje": {f:"2026-12-12",t:"2026-12-13",n:"Vánoční řemeslnické trhy",h:"jen 12.–13. 12.",hv:1,web:K+"akce/vanocni-trhy-v-turnove",tags:["deti"],
+      d:"Řemeslníci z celé republiky a doprovodný program pro děti i dospělé."},
+    "Strakonice|Velké náměstí": {n:"Adventní trhy pod Rumpálem (hrad)",lat:49.2579,lng:13.8999,f:"2026-12-04",t:"2026-12-06",h:"jen 4.–6. 12.",hv:1,web:"https://www.strakonice.eu/",
+      d:"Adventní trhy na nádvoří strakonického hradu pod věží Rumpál s ukázkami řemesel."},
+  };
+  const NEW = [
+    {n:"Staročeský vánoční trh",c:"Tábor",cc:"CZ",lat:49.4136,lng:14.6577,f:"2026-12-12",t:"2026-12-13",h:"so 12. 12. 9:00 – ne 13. 12. 17:00",hv:1,
+      web:K+"akce/starocesky-vanocni-trh-v-tabore",d:"Dvoudenní staročeský trh v historickém centru na Žižkově náměstí.",tags:["program"]},
+    {n:"Zámecké adventní dny (zámek)",c:"Jindřichův Hradec",cc:"CZ",lat:49.1443,lng:15.0018,f:"2026-12-11",t:"2026-12-12",h:"jen 11.–12. 12.",hv:1,
+      web:K+"akce/adventni-dny-jindrichuv-hradec-1",d:"Adventní dny v areálu státního hradu a zámku Jindřichův Hradec.",tags:["program"]},
+    {n:"Vánoční jarmark ve Valašském muzeu",c:"Rožnov pod Radhoštěm",cc:"CZ",lat:49.4603,lng:18.1502,f:"2026-12-12",t:"2026-12-13",h:"jen 12.–13. 12.",hv:1,
+      web:K+"akce/vanocni-jarmark-12",d:"Vánoční jarmark v Dřevěném městečku Valašského muzea v přírodě: lidová řemesla, koledy a valašské zvyky.",tags:["betlem","deti"]},
+    {n:"Valašský mikulášský jarmek",c:"Valašské Klobouky",cc:"CZ",lat:49.1406,lng:18.0077,f:"2026-12-05",t:"2026-12-05",h:"jen sobota 5. 12.",hv:1,
+      web:K+"akce/valassky-mikulassky-jarmek",d:"Už 33. ročník tradičního mikulášského jarmarku s valašskými řemesly a čerty.",tags:["deti"]},
+    {n:"Polabské vánoční trhy (výstaviště)",c:"Lysá nad Labem",cc:"CZ",lat:50.2006,lng:14.8326,f:"2026-12-04",t:"2026-12-20",
+      days:["2026-12-04","2026-12-05","2026-12-06","2026-12-11","2026-12-12","2026-12-13","2026-12-18","2026-12-19","2026-12-20"],h:"pá–ne 4.–6., 11.–13. a 18.–20. 12.",hv:1,
+      web:"https://www.vylysa.cz/",d:"Velké vánoční trhy na výstavišti, tři prodloužené adventní víkendy: Mikulášské, Stříbrné a Zlaté trhy.",tags:["deti","program"]},
+  ];
+  for (const m of window.MARKETS){
+    const o = U[m.c + "|" + m.n];
+    if (!o) continue;
+    Object.assign(m, o); m.v = 1; delete m.est;
+  }
+  window.MARKETS.push(...NEW.map(m => ({...m, v:1})));
+})();

@@ -37,6 +37,6 @@ Menší trhy jsou ve zkráceném seznamu na konci souboru: `["Město", "CZ", lat
 **Settings → Pages → Deploy from a branch → `main` / `(root)` → Save.** Určení polohy funguje jen přes HTTPS, tedy na adrese GitHub Pages, ne při otevření souboru z disku.
 
 ## Data
-- **ověřeno 2026**: termín pochází ze zdrojů pro sezónu 2026/27 (weby měst, Visit Czechia, přehledy termínů). Zatím jde o 41 trhů: 27 hlavních českých a 14 velkých trhů v Německu, Rakousku a Polsku. Pole `v:1` je v `markets.js`.
+- **ověřeno 2026**: termín pochází ze zdrojů pro sezónu 2026/27 (weby měst, Visit Czechia, přehledy termínů). Ověřených trhů je 59: 45 českých a 14 velkých trhů v Německu, Rakousku a Polsku. Aktualizuje se pravidelně. Pole `v:1` je v `markets.js`.
 - **odhad**: obvyklý termín podle země. Ověřte ho u pořadatele.
 - Ověřená data jsou v bloku *Verified 2026/27 data* na konci `markets.js`: termín, otevírací doba (`hv:1`), web pořadatele (`web`), vlastnosti (`tags`) a konkrétní dny (`days`).
