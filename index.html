@@ -35,7 +35,8 @@
   --accent:#9b1c2e; --accent-ink:#fff; --pine:#1d5c45; --gold:#c9993a; --gold-soft:#f5e7c6; --closed:#9b948c;
   --open-ink:#1d5c45; --soon-ink:#9b1c2e;
   --snow:rgba(150,172,205,.9);
-  --tile-filter:saturate(.5) sepia(.14) brightness(1.03) contrast(.95);
+  --tile-filter:grayscale(1) sepia(.2) hue-rotate(178deg) saturate(1.35) brightness(1.04) contrast(.95);
+  --osm-filter:grayscale(1) sepia(.18) hue-rotate(178deg) saturate(1.3) brightness(1.08) contrast(.86);
   --shadow-1:0 1px 2px rgba(40,25,10,.08),0 6px 18px rgba(40,25,10,.10);
   --shadow-2:0 14px 44px rgba(40,25,10,.24);
   --sheet-h:50vh;
@@ -48,7 +49,8 @@
     --accent:#c8404f; --accent-ink:#fff; --pine:#3fae80; --gold:#e8bd5c; --gold-soft:#3a3221; --closed:#6f7686;
     --open-ink:#6fd3a6; --soon-ink:#ff8c98;
     --snow:rgba(255,255,255,.9);
-    --tile-filter:invert(1) hue-rotate(195deg) brightness(.8) contrast(.9) saturate(.4);
+    --tile-filter:grayscale(1) sepia(.3) hue-rotate(185deg) saturate(1.7) brightness(1.08);
+    --osm-filter:grayscale(1) invert(1) sepia(.35) hue-rotate(180deg) saturate(1.8) brightness(.72) contrast(.95);
     --shadow-1:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.35);
     --shadow-2:0 14px 44px rgba(0,0,0,.55);
   }
@@ -58,7 +60,8 @@
   --accent:#c8404f; --accent-ink:#fff; --pine:#3fae80; --gold:#e8bd5c; --gold-soft:#3a3221; --closed:#6f7686;
   --open-ink:#6fd3a6; --soon-ink:#ff8c98;
   --snow:rgba(255,255,255,.9);
-  --tile-filter:invert(1) hue-rotate(195deg) brightness(.8) contrast(.9) saturate(.4);
+  --tile-filter:grayscale(1) sepia(.3) hue-rotate(185deg) saturate(1.7) brightness(1.08);
+  --osm-filter:grayscale(1) invert(1) sepia(.35) hue-rotate(180deg) saturate(1.8) brightness(.72) contrast(.95);
   --shadow-1:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.35);
   --shadow-2:0 14px 44px rgba(0,0,0,.55);
 }
@@ -76,7 +79,9 @@ svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-widt
 
 /* ================= Map ================= */
 #map{position:fixed;inset:0;z-index:0;background:var(--bg)}
-.tiles{filter:var(--tile-filter)}
+.tiles-canvas{filter:var(--tile-filter)}
+.tiles-osm{filter:var(--osm-filter)}
+.tiles-ref{filter:none}
 .leaflet-container{font-family:var(--font-ui)}
 .leaflet-bottom{bottom:var(--sheet-h);transition:bottom .35s cubic-bezier(.2,.8,.2,1)}
 .leaflet-control-attribution{font-size:10px;background:color-mix(in srgb,var(--panel) 80%,transparent) !important;color:var(--muted)}
@@ -426,9 +431,9 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<script src="markets.js?v=11"></script>
+<script src="markets.js?v=12"></script>
 <script>
-const APP_VERSION = "v11";
+const APP_VERSION = "v12";
 const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES, TAGS = window.TAGS || {};
 
 /* ================= Helpers ================= */
@@ -530,27 +535,37 @@ L.control.zoom({position:"bottomright"}).addTo(map);
 map.attributionControl.setPrefix(`Vánoční trhy ${APP_VERSION} · <a href="https://leafletjs.com">Leaflet</a>`);
 map.fitBounds([[48.55,12.1],[51.06,18.86]]);
 
-// keyless tile providers; switch to the next one if a provider fails to load
-const TILE_PROVIDERS = [
-  {url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png", opt:{maxZoom:19,
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}},
-  {url:"https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", opt:{maxZoom:19,
-    attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap'}},
-  {url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", opt:{maxZoom:17, subdomains:"abc",
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; OpenTopoMap'}},
-];
-let tileLayer = null, tileIdx = 0;
+// Keyless tile providers, winter look. Primary: Esri gray canvas (no green at all, separate label layer);
+// fallback: OpenStreetMap and OpenTopoMap, turned winter-grey by a CSS filter. Switches on load failure.
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/";
+const ESRI_ATTR = 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap';
+const OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+function tileProviders(){
+  const dark = darkQuery.matches;
+  return [
+    {url:ESRI + (dark ? "World_Dark_Gray_Base" : "World_Light_Gray_Base") + "/MapServer/tile/{z}/{y}/{x}",
+     ref:ESRI + (dark ? "World_Dark_Gray_Reference" : "World_Light_Gray_Reference") + "/MapServer/tile/{z}/{y}/{x}",
+     opt:{maxZoom:19, maxNativeZoom:16, attribution:ESRI_ATTR}, cls:"tiles tiles-canvas"},
+    {url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png", opt:{maxZoom:19, attribution:OSM_ATTR}, cls:"tiles tiles-osm"},
+    {url:"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", opt:{maxZoom:17, subdomains:"abc", attribution:OSM_ATTR + ", &copy; OpenTopoMap"}, cls:"tiles tiles-osm"},
+  ];
+}
+let tileLayer = null, refLayer = null, tileIdx = 0;
 function useTiles(i){
   if (tileLayer) map.removeLayer(tileLayer);
+  if (refLayer){ map.removeLayer(refLayer); refLayer = null; }
   tileIdx = i;
   let ok = 0, bad = 0;
-  const pr = TILE_PROVIDERS[i];
-  tileLayer = L.tileLayer(pr.url, {...pr.opt, className:"tiles"});
+  const list = tileProviders(), pr = list[i];
+  tileLayer = L.tileLayer(pr.url, {...pr.opt, className:pr.cls});
   tileLayer.on("tileload", () => { ok++; });
-  tileLayer.on("tileerror", () => { bad++; if (!ok && bad >= 3 && tileIdx === i && i + 1 < TILE_PROVIDERS.length) useTiles(i + 1); });
+  tileLayer.on("tileerror", () => { bad++; if (!ok && bad >= 3 && tileIdx === i && i + 1 < list.length) useTiles(i + 1); });
   tileLayer.addTo(map);
+  if (pr.ref) refLayer = L.tileLayer(pr.ref, {maxZoom:19, maxNativeZoom:16, className:pr.cls + " tiles-ref", zIndex:2}).addTo(map);
 }
 useTiles(0);
+darkQuery.addEventListener?.("change", () => useTiles(tileIdx));
 
 const markerLayer = L.markerClusterGroup({
   maxClusterRadius:48, disableClusteringAtZoom:12, showCoverageOnHover:false, spiderfyOnMaxZoom:true,

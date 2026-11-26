@@ -24,7 +24,7 @@ Mapa vánočních trhů v Česku a sousedních zemích (Německo, Rakousko, Slov
 - Sdílení konkrétního trhu (`#trh=…`) i celé aplikace s náhledovým obrázkem
 
 ## Technika
-`index.html` (aplikace), `markets.js` (data), `sw.js` (offline režim), `manifest.webmanifest` a `icons/`. Čisté HTML, CSS a JavaScript, mapa [Leaflet](https://leafletjs.com/) s podklady © OpenStreetMap. Bez build procesu a backendu.
+`index.html` (aplikace), `markets.js` (data), `sw.js` (offline režim), `manifest.webmanifest` a `icons/`. Čisté HTML, CSS a JavaScript, mapa [Leaflet](https://leafletjs.com/) s podklady Esri Light/Dark Gray Canvas (zimní vzhled, záloha © OpenStreetMap). Bez build procesu a backendu.
 
 Data trhů jsou v souboru `markets.js`. Trhy s ověřeným termínem a popisem jsou v poli `MARKETS`:
 ```js
