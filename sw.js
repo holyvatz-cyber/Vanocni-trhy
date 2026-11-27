@@ -1,5 +1,5 @@
 /* Vánoční trhy – service worker: offline app shell, cached libraries and recently viewed map tiles */
-const VERSION = "v13";
+const VERSION = "v14";
 const SHELL = `vt-shell-${VERSION}`, LIBS = "vt-libs-1", TILES = "vt-tiles-1";
 const SHELL_FILES = ["./", "index.html", "markets.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];

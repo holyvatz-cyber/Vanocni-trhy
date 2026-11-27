@@ -431,9 +431,9 @@ body.drawing #map, body.drawing #map *{touch-action:none !important;cursor:cross
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-<script src="markets.js?v=13"></script>
+<script src="markets.js?v=14"></script>
 <script>
-const APP_VERSION = "v13";
+const APP_VERSION = "v14";
 const MARKETS = window.MARKETS, COUNTRIES = window.COUNTRIES, TAGS = window.TAGS || {};
 
 /* ================= Helpers ================= */
@@ -460,8 +460,21 @@ function distKm(a, b){
   return 2*R*Math.asin(Math.sqrt(x));
 }
 const fmtKm = km => km < 10 ? `${km.toFixed(1).replace(".", ",")} km` : `${Math.round(km)} km`;
+function fmtDays(days){
+  // ["2026-11-27","2026-11-28","2026-12-04"] -> "27.–28. 11. a 4. 12."
+  const ds = days.map(parseD), parts = [];
+  for (let i = 0; i < ds.length; ){
+    let j = i;
+    while (j + 1 < ds.length && ds[j+1] - ds[j] === DAY) j++;
+    const a = ds[i], b = ds[j];
+    parts.push(i === j ? `${a.getDate()}. ${a.getMonth()+1}.` : `${a.getDate()}.${a.getMonth() !== b.getMonth() ? ` ${a.getMonth()+1}.` : ""}–${b.getDate()}. ${b.getMonth()+1}.`);
+    i = j + 1;
+  }
+  return parts.length > 1 ? parts.slice(0, -1).join(", ") + " a " + parts[parts.length-1] : parts[0];
+}
 function fmtRange(m){
   const f = parseD(m.f), t = parseD(m.t);
+  if (m.f === m.t) return `${f.getDate()}. ${f.getMonth()+1}. ${f.getFullYear()}`;
   const p = d => `${d.getDate()}. ${d.getMonth()+1}.`;
   return f.getFullYear() === t.getFullYear() ? `${p(f)} – ${p(t)} ${t.getFullYear()}` : `${p(f)} ${f.getFullYear()} – ${p(t)} ${t.getFullYear()}`;
 }
@@ -679,7 +692,7 @@ function renderDetail(m){
     ${m.tags && m.tags.length ? `<div class="tags">${m.tags.map(t => TAGS[t] ? `<span class="tag">${TAGS[t].i} ${TAGS[t].l}</span>` : "").join("")}</div>` : ""}
     <ul class="facts">
       <li>${ICON.cal}<div><b>${fmtRange(m)}</b> ${badge(m)}
-        <small>${m.days ? "Jen ve dnech " + m.days.map(x => parseD(x).getDate() + ".").join(", ") + " " + (parseD(m.days[0]).getMonth()+1) + "." : m.v ? "Termín podle zdrojů pro sezónu 2026/27" : "Termín je odhad podle obvyklé sezóny, ověřte ho u pořadatele"}</small></div></li>
+        <small>${m.days ? "Jen ve dnech " + fmtDays(m.days) : m.v ? "Termín podle zdrojů pro sezónu 2026/27" : "Termín je odhad podle obvyklé sezóny, ověřte ho u pořadatele"}</small></div></li>
       <li>${ICON.clock}<div><b>${esc(m.h)}</b><small>${m.hv ? "Otevírací doba" : "Obvyklá otevírací doba, letos se může lišit"}</small></div></li>
       ${state.me ? `<li>${ICON.pin}<div><b>${fmtKm(distKm(state.me, m))}</b><small>vzdušnou čarou od vás</small></div></li>` : ""}
     </ul>
