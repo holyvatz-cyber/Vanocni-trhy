@@ -523,3 +523,32 @@ window.COUNTRIES = {CZ:{flag:"🇨🇿",name:"Česko"},DE:{flag:"🇩🇪",name:
   }
   window.MARKETS.push(...NEW.map(m => ({...m, v:1})));
 })();
+
+/* ---------- Verified 2026/27 data: update 27. 11. 2026 (kudyznudy.cz event calendar 2026) ---------- */
+(() => {
+  const K = "https://www.kudyznudy.cz/";
+  const U = {
+    "Telč|Advent v Telči": {n:"Adventní trhy v Panském dvoře",f:"2026-11-21",t:"2026-11-21",h:"jen 21. 11., 9:00–17:00",hv:1,web:K+"akce/adventni-trhy-v-panskem-dvore",tags:["unesco"],
+      d:"Jednodenní adventní trh na nádvoří Panského dvora s desítkami stánků a charitativním Stromečkem přání (dárky lze nosit do 20. 12.)."},
+    "Vrchlabí|Náměstí Míru": {n:"Krkonošské adventní trhy",f:"2026-12-04",t:"2026-12-06",h:"jen 4.–6. 12.",hv:1,web:K+"akce/krkonosske-vanoce",tags:["strom"],
+      d:"Víkendové adventní trhy v centru Vrchlabí, v pátek 4. 12. slavnostní rozsvícení stromu s živou hudbou."},
+    "Frýdek-Místek|Náměstí Svobody": {n:"Adventní trhy – náměstí Svobody (Místek)",f:"2026-11-29",t:"2026-12-23",web:K+"akce/adventni-trhy-frydek-mistek",tags:["strom","program"],
+      d:"Adventní trhy a rozsvícení vánočních stromů na náměstích ve Frýdku i v Místku."},
+    "Krnov|Hlavní náměstí": {n:"Adventní trhy",f:"2026-12-05",t:"2026-12-13",web:K+"aktuality/10-tipu-kam-vyrazit-na-vanocni-trhy"},
+    "Mariánské Lázně|Lázeňská kolonáda": {n:"Adventní trhy na kolonádě",f:"2026-11-27",t:"2026-12-20",
+      days:["2026-11-27","2026-11-28","2026-11-29","2026-12-04","2026-12-05","2026-12-06","2026-12-18","2026-12-19","2026-12-20"],h:"1., 2. a 4. adventní víkend",web:K+"akce/adventni-trhy-na-kolonade",tags:["strom","program"],
+      d:"Adventní trhy na Lázeňské kolonádě o adventních víkendech: rozsvícení stromu 28. 11. před pavilonem Křížového pramene, mikulášská nadílka a Rybova mše vánoční."},
+    "Loket|Náměstí T. G. Masaryka": {n:"Krušnohorské vánoční trhy na hradě",lat:50.1862,lng:12.7537,f:"2026-12-12",t:"2026-12-13",h:"12.–13. 12., 10:00–18:00",hv:1,web:K+"akce/advent-na-hrade-loket-vanocni-trhy",tags:["program","deti"],
+      d:"Vánoční trhy na hradě Loket s divadlem, koncerty, dobovým tržištěm a vánočními dílnami."},
+  };
+  const NEW = [
+    {n:"Vánoční jarmark na frýdeckém zámku",c:"Frýdek-Místek",cc:"CZ",lat:49.6863,lng:18.3477,f:"2026-12-06",t:"2026-12-06",h:"neděle 6. 12., 9:00–15:00",hv:1,
+      web:K+"akce/vanocni-jarmark-na-frydeckem-zamku-6",d:"Jednodenní vánoční jarmark na zámku ve Frýdku.",v:1},
+  ];
+  for (const m of window.MARKETS){
+    const o = U[m.c + "|" + m.n];
+    if (!o) continue;
+    Object.assign(m, o); m.v = 1; delete m.est;
+  }
+  window.MARKETS.push(...NEW);
+})();
